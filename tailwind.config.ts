@@ -15,6 +15,7 @@ const config: Config = {
         bluebrand: "#224986",
         navbarbackground: "#F4F7F8",
         brandgold: "#BB9271",
+        lightbluebackground: "#E9F6FF",
       },
     },
   },
