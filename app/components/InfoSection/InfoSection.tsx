@@ -1,4 +1,6 @@
-export default function InfoSection() {
+import React from "react";
+
+function InfoSection() {
   return (
     <div className="bg-lightbluebackground p-4 sm:p-5 rounded">
       <div className="flex flex-col lg:flex-row justify-between max-w-full lg:max-w-[67rem] mx-auto mt-6 sm:mt-8">
@@ -42,3 +44,5 @@ export default function InfoSection() {
     </div>
   );
 }
+
+export default InfoSection;
