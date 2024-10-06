@@ -11,6 +11,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        navbardropdonw: "#F4F7F8",
+        bluebrand: "#224986",
+        navbarbackground: "#F4F7F8",
+        brandgold: "#BB9271",
       },
     },
   },
