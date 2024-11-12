@@ -1,11 +1,12 @@
-"use client"; // Ensure this is a Client Component
+"use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation"; // Import useParams and useRouter
+import { useParams, useRouter } from "next/navigation";
 import { Spin } from "antd";
-import { Checkbox } from "antd"; // Import Checkbox from Ant Design
+import { Checkbox } from "antd";
+import ChartTableComponent from "@/app/result/ChartTableComponent";
+import StepsComponent from "../_components/StepsCompnent/StepsCompnent";
 
-// Define the type for the field and report data structure
 interface Field {
   _id: string;
   name: string;
@@ -37,30 +38,52 @@ interface Report {
   data: DataItem[];
 }
 
-const FilteredReportPage = () => {
-  const params = useParams(); // Access route parameters
-  const { filterId } = params; // Destructure filterId from parameters
-  const router = useRouter(); // Initialize the router
+// New interface for selected items per field
+interface SelectedItemsState {
+  [fieldId: string]: Set<string>;
+}
 
-  const [report, setReport] = useState<Report | null>(null); // Store a single report
+const FilteredReportPage = () => {
+  const params = useParams();
+  const { filterId } = params;
+  const router = useRouter();
+
+  const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]); // Track selected items
+  const [showChartTable, setShowChartTable] = useState(false);
+  const [selectedItemsPerField, setSelectedItemsPerField] =
+    useState<SelectedItemsState>({});
+
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
-    if (!filterId) return; // Ensure filterId is available
+    if (!filterId) {
+      setError("No filter ID provided");
+      setLoading(false);
+      return;
+    }
 
     const fetchReport = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3016/reports/${filterId}` // Fetch report by filterId
-        );
+        const response = await fetch(`${API_URL}/reports/${filterId}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch the report");
+          throw new Error(`Failed to fetch the report: ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log("fetchedReprots: ", data);
         setReport(data);
+
+        // Initialize selected items state for each field
+        const initialSelectedState: SelectedItemsState = {};
+        data.fields
+          .filter((field: Field) => field.filtered)
+          .forEach((field: Field) => {
+            initialSelectedState[field._id] = new Set();
+          });
+        setSelectedItemsPerField(initialSelectedState);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -71,111 +94,174 @@ const FilteredReportPage = () => {
     fetchReport();
   }, [filterId]);
 
+  const handleSelectAll = (fieldId: string, items: string[]) => {
+    setSelectedItemsPerField((prev) => ({
+      ...prev,
+      [fieldId]: new Set(items),
+    }));
+  };
+
+  const handleDeselectAll = (fieldId: string) => {
+    setSelectedItemsPerField((prev) => ({
+      ...prev,
+      [fieldId]: new Set(),
+    }));
+  };
+
+  const handleItemChange = (fieldId: string, item: string) => {
+    setSelectedItemsPerField((prev) => {
+      const currentFieldSelections = new Set(prev[fieldId]);
+      if (currentFieldSelections.has(item)) {
+        currentFieldSelections.delete(item);
+      } else {
+        currentFieldSelections.add(item);
+      }
+      return {
+        ...prev,
+        [fieldId]: currentFieldSelections,
+      };
+    });
+  };
+
+  const filteredFields = report?.fields.filter((field) => field.filtered) ?? [];
+
+  const groupedDataItems = filteredFields.reduce((acc, field) => {
+    const filteredItemsForField =
+      report?.data
+        .filter((dataItem) => dataItem.field._id === field._id)
+        .map((dataItem) => dataItem.value) ?? [];
+
+    if (!acc[field._id]) {
+      acc[field._id] = {
+        fieldName: field.name,
+        values: new Set(filteredItemsForField),
+      };
+    } else {
+      filteredItemsForField.forEach((value) =>
+        acc[field._id].values.add(value)
+      );
+    }
+
+    return acc;
+  }, {} as { [key: string]: { fieldName: string; values: Set<string> } });
+
+  const handleNextClick = () => {
+    // Create selectedFilters object with the correct structure
+    const filtersSelected = Object.entries(selectedItemsPerField).reduce(
+      (acc, [fieldId, selectedValues]) => {
+        const field = report?.fields.find((field) => field._id === fieldId);
+        if (field) {
+          acc[field.name] = Array.from(selectedValues);
+        }
+        return acc;
+      },
+      {} as { [fieldName: string]: string[] }
+    );
+
+    // Toggle the next component to render and pass props
+    console.log("Selected Filters: ", filtersSelected); // Check the structure
+    setShowChartTable(true);
+    setSelectedFilters(filtersSelected);
+  };
+
   if (loading) {
-    return <Spin spinning={loading}>Loading report...</Spin>;
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Spin spinning={loading} size="large">
+          <div className="p-12">Loading report...</div>
+        </Spin>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="w-full p-8 text-center">
+        <div className="text-red-600 font-semibold mb-2">Error</div>
+        <div>{error}</div>
+      </div>
+    );
   }
 
-  // Function to handle the checkbox selection logic
-  const handleSelectAll = (items: string[]) => {
-    setSelectedItems(items);
-  };
+  if (showChartTable && report) {
+    console.log("report: ", report);
 
-  const handleDeselectAll = () => {
-    setSelectedItems([]);
-  };
-
-  const handleItemChange = (item: string) => {
-    setSelectedItems((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    // Render the ChartTableComponent with selected filters and the report data
+    return (
+      <ChartTableComponent report={report} selectedFilters={selectedFilters} />
     );
-  };
-
-  // Get filtered fields
-  const filteredFields = report.fields.filter((field) => field.filtered);
-  // Map over the data to create items for the checkboxes
-  const filteredDataItems = report.data.filter((dataItem) =>
-    filteredFields.some((field) => field._id === dataItem.field._id)
-  );
-
-  // Handle the next button click
-  const handleNextClick = () => {
-    router.push("/result"); // Navigate to the /result page
-  };
+  }
 
   return (
-    <div className="p-4 px-8">
-      {" "}
-      {/* Add horizontal padding */}
-      <h1 className="text-xl font-semibold mb-4">
-        Reports with Filtered Fields
-      </h1>
-      {filteredFields.length > 0 ? (
-        filteredFields.map((field) => {
-          const correspondingDataItem = filteredDataItems.find(
-            (dataItem) => dataItem.field._id === field._id
-          );
+    <>
+      <StepsComponent currentStep={1} />
 
-          // Get value for the checkbox label
-          const itemValue = correspondingDataItem
-            ? correspondingDataItem.value
-            : "";
-
-          return (
-            <div
-              key={field._id}
-              className="p-4 bg-[#2B5BA8] text-white rounded-md w-64 mb-4 space-y-2"
-            >
-              <h2 className="text-lg font-semibold">{field.name}</h2>
-              <div className="flex justify-between mb-2">
-                <button
-                  className="bg-white text-[#2B5BA8] px-2 py-1 rounded"
-                  onClick={() =>
-                    handleSelectAll(filteredDataItems.map((item) => item.value))
-                  }
+      <div className="w-full flex flex-col gap-4 px-8 items-center justify-center">
+        <h1 className="text-xl font-semibold mb-4">
+          Reports with Filtered Fields
+        </h1>
+        {Object.keys(groupedDataItems).length > 0 ? (
+          <div className="flex flex-wrap gap-6">
+            {Object.entries(groupedDataItems).map(
+              ([fieldId, { fieldName, values }]) => (
+                <div
+                  key={fieldId}
+                  className="flex-1 min-w-[300px] max-w-[400px]"
                 >
-                  Select all
-                </button>
-                <button
-                  className="bg-white text-[#2B5BA8] px-2 py-1 rounded"
-                  onClick={handleDeselectAll}
-                >
-                  Deselect all
-                </button>
-              </div>
-              <div className="text-sm mb-2">
-                Selected {selectedItems.length} of total{" "}
-                {filteredDataItems.length}
-              </div>
-              <div className="bg-white text-black p-2 rounded-md space-y-1">
-                {filteredDataItems.map((dataItem) => (
-                  <Checkbox
-                    key={dataItem._id}
-                    checked={selectedItems.includes(dataItem.value)}
-                    onChange={() => handleItemChange(dataItem.value)}
-                    className="w-full"
-                  >
-                    {dataItem.value}
-                  </Checkbox>
-                ))}
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <p>No reports found with filtered fields.</p>
-      )}
-      {/* Next Button */}
-      <button
-        onClick={handleNextClick}
-        className="mt-4 bg-[#2B5BA8] text-white px-4 py-2 rounded"
-      >
-        Next
-      </button>
-    </div>
+                  <h2 className="text-lg font-semibold mb-2">
+                    {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
+                  </h2>
+                  <div className="bg-[#2B5BA8] text-white rounded-md h-[400px] flex flex-col">
+                    <div className="p-4 space-y-2">
+                      <div className="flex justify-between mb-2">
+                        <button
+                          className="bg-white text-[#2B5BA8] px-3 py-1.5 rounded hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSelectAll(fieldId, [...values])}
+                        >
+                          Select all
+                        </button>
+                        <button
+                          className="bg-white text-[#2B5BA8] px-3 py-1.5 rounded hover:bg-gray-100 transition-colors"
+                          onClick={() => handleDeselectAll(fieldId)}
+                        >
+                          Deselect all
+                        </button>
+                      </div>
+                      <div className="text-sm">
+                        Selected {selectedItemsPerField[fieldId]?.size ?? 0} of
+                        total {values.size}
+                      </div>
+                    </div>
+                    <div className="flex-1 bg-white text-black rounded-md mx-4 mb-4 overflow-y-auto">
+                      <div className="p-2 space-y-1">
+                        {[...values].map((value) => (
+                          <Checkbox
+                            key={value}
+                            checked={selectedItemsPerField[fieldId]?.has(value)}
+                            onChange={() => handleItemChange(fieldId, value)}
+                            className="w-full hover:bg-gray-50 p-1 rounded"
+                          >
+                            {value}
+                          </Checkbox>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        ) : (
+          <p>No reports found with filtered fields.</p>
+        )}
+        <button
+          onClick={handleNextClick}
+          className="mt-6 bg-[#2B5BA8] text-white px-4 py-2 rounded hover:bg-[#234a87] transition-colors"
+        >
+          Next
+        </button>
+      </div>
+    </>
   );
 };
 

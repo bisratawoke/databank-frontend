@@ -11,7 +11,7 @@ import {
 const StepsComponent = ({ currentStep = 0 }) => {
   const steps = [
     {
-      title: "Choose Table",
+      title: "Choose Report",
       icon: <TableOutlined />,
     },
     {

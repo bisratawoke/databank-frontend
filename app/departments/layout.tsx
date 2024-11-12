@@ -5,7 +5,8 @@ import StepsComponent from "./_components/StepsCompnent/StepsCompnent";
 const layout = () => {
   return (
     <>
-      <StepsComponent />
+      <StepsComponent currentStep={0} />
+
       <ReportPage />
     </>
   );

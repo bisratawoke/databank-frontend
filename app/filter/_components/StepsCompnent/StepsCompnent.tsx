@@ -1,16 +1,17 @@
 "use client";
-
-import React, { useState } from "react";
-import { Steps, Button } from "antd";
+import React from "react";
+import { Steps } from "antd";
 import {
   CheckCircleOutlined,
   CheckOutlined,
   TableOutlined,
 } from "@ant-design/icons";
 
-const StepsComponent = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+interface StepsComponentProps {
+  currentStep: number;
+}
 
+const StepsComponent: React.FC<StepsComponentProps> = ({ currentStep }) => {
   const steps = [
     {
       title: "Choose Table",
@@ -25,10 +26,6 @@ const StepsComponent = () => {
       icon: <CheckCircleOutlined />,
     },
   ];
-
-  // const nextStep = () => {
-  //   setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  // };
 
   return (
     <div className="flex flex-col items-center justify-center py-4 sm:py-6 px-3 sm:px-8 lg:px-16">
@@ -47,13 +44,6 @@ const StepsComponent = () => {
           ))}
         </Steps>
       </div>
-      {/* <Button
-        type="primary"
-        onClick={nextStep}
-        disabled={currentStep === steps.length - 1}
-      >
-        Next Step
-      </Button> */}
     </div>
   );
 };

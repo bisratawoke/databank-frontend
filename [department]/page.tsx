@@ -27,9 +27,10 @@ const DepartmentPage = async ({
   if (!departmentId) {
     return <div>Department ID not found.</div>;
   }
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // Fetch department data from the API
-  const res = await fetch(`http://localhost:3016/departments/${departmentId}`);
+  const res = await fetch(`${API_URL}/departments/${departmentId}`);
 
   // Check if the response is ok
   if (!res.ok) {

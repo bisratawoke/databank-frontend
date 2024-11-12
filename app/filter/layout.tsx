@@ -5,7 +5,6 @@ import StepsComponent from "./_components/StepsCompnent/StepsCompnent";
 const layout = () => {
   return (
     <>
-      <StepsComponent />
       <FilteredReportPage />
     </>
   );

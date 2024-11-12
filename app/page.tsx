@@ -4,8 +4,10 @@ import DepartmentsLists from "./components/DepartmentsLists";
 import InfoSection from "./components/InfoSection/InfoSection";
 
 // Fetching data on the server side in the app directory
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const fetchDepartments = async () => {
-  const res = await fetch("http://localhost:3016/departments", {
+  const res = await fetch(`${API_URL}/departments`, {
     cache: "no-store", // To avoid caching during development
   });
   if (!res.ok) {

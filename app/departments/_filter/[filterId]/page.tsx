@@ -11,14 +11,14 @@ const FilteredReportPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     if (!filterId) return; // Wait until filterId is available
 
     const fetchReport = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3016/reports/${filterId}`
-        );
+        const response = await fetch(`${API_URL}/reports/${filterId}`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
