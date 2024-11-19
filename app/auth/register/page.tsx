@@ -9,6 +9,8 @@ export default function page() {
     console.log(values);
     const res = await registerUser(values);
     console.log(res);
+    if (res.status != 201) message.error("Something went wrong");
+    else message.success("Successfully registered");
   }
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
