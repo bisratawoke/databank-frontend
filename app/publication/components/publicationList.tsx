@@ -1,3 +1,4 @@
+"use client";
 import { Table } from "antd";
 
 export default function PublicationList({
@@ -5,7 +6,18 @@ export default function PublicationList({
 }: {
   publications: Array<Record<string, any>>;
 }) {
-  const columns = [{ title: "Title", dataIndex: "fileName", key: "fileName" }];
+  const columns = [
+    {
+      title: "Title",
+      dataIndex: "fileName",
+      key: "fileName",
+      render: (value: string) => (
+        <span className="text-[16px]">
+          {value.split("/")[value.split("/").length - 1]}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className="grid grid-cols-12">
