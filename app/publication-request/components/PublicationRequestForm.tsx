@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Form, Input, Button, Select, message } from "antd";
+import { Form, Input, Button, Select, Upload, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import createPublicationRequest from "../actions/createPublicationRequest";
 
 const { Option } = Select;
@@ -28,10 +29,25 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
 
   const handleSubmit = async (values: any) => {
     try {
-      const response = await createPublicationRequest(values);
+      const formData = new FormData();
+      // Append form values
+      Object.keys(values).forEach((key) => {
+        if (key === "file" && values[key]) {
+          formData.append(key, values[key].file.originFileObj);
+        } else if (Array.isArray(values[key])) {
+          values[key].forEach((item: string) =>
+            formData.append(`${key}[]`, item)
+          );
+        } else {
+          formData.append(key, values[key]);
+        }
+      });
+
+      const response = await createPublicationRequest(formData);
 
       if (response.status === 201) {
         message.success("Publication request created successfully!");
+        form.resetFields();
       } else {
         message.error(
           `Failed to create publication request: ${
@@ -83,7 +99,6 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
-          {/* Preferred Data Format */}
           <Form.Item
             label="Preferred Data Format"
             name="preferredDataFormat"
@@ -97,7 +112,6 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             <Input placeholder="e.g., CSV, JSON, Excel" className="w-full" />
           </Form.Item>
 
-          {/* Purpose for Research */}
           <Form.Item
             label="Purpose for Research"
             name="purposeForResearch"
@@ -115,7 +129,6 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
-          {/* Date Importance */}
           <Form.Item
             label="Data Importance"
             name="dateImportance"
@@ -133,7 +146,6 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
-          {/* Admin Units */}
           <Form.Item
             label="Administrative Unit"
             name="adminUnits"
@@ -153,7 +165,19 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             </Select>
           </Form.Item>
 
-          {/* Submit Button */}
+          <Form.Item
+            label="File Upload"
+            name="file"
+            valuePropName="file"
+            getValueFromEvent={(e: any) =>
+              Array.isArray(e) ? e : e?.fileList[0]
+            }
+          >
+            <Upload beforeUpload={() => false} maxCount={1}>
+              <Button icon={<UploadOutlined />}>Upload File</Button>
+            </Upload>
+          </Form.Item>
+
           <Form.Item>
             <Button
               type="primary"
