@@ -30,25 +30,34 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
   const handleSubmit = async (values: any) => {
     try {
       const formData = new FormData();
-      // Append form values
+
+      // Append non-file fields
       Object.keys(values).forEach((key) => {
-        if (key === "file" && values[key]) {
-          formData.append(key, values[key].file.originFileObj);
-        } else if (Array.isArray(values[key])) {
-          values[key].forEach((item: string) =>
-            formData.append(`${key}[]`, item)
-          );
-        } else {
-          formData.append(key, values[key]);
+        if (key !== "file") {
+          if (Array.isArray(values[key])) {
+            values[key].forEach((item: string) =>
+              formData.append(`${key}[]`, item)
+            );
+          } else {
+            formData.append(key, values[key]);
+          }
         }
       });
+
+      // Append file if it exists
+      if (values.file) {
+        formData.append("file", values.file.originFileObj);
+      }
 
       const response = await createPublicationRequest(formData);
 
       if (response.status === 201) {
         message.success("Publication request created successfully!");
-        form.resetFields();
+        // form.resetFields();
       } else {
+        console.log("========== in handle submit =================");
+        console.log(response.status);
+        console.log(response.body);
         message.error(
           `Failed to create publication request: ${
             response.body || "Unknown error"
@@ -78,6 +87,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
           }}
           className="space-y-4"
         >
+          {/* Categories */}
           <Form.Item
             label="Categories"
             name="category"
@@ -89,7 +99,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             ]}
           >
             <Select
-              mode="multiple"
+              // mode="multiple"
               placeholder="Select categories"
               options={categories.map((category) => ({
                 label: category.name,
@@ -99,6 +109,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
+          {/* Preferred Data Format */}
           <Form.Item
             label="Preferred Data Format"
             name="preferredDataFormat"
@@ -112,6 +123,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             <Input placeholder="e.g., CSV, JSON, Excel" className="w-full" />
           </Form.Item>
 
+          {/* Purpose for Research */}
           <Form.Item
             label="Purpose for Research"
             name="purposeForResearch"
@@ -129,6 +141,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
+          {/* Data Importance */}
           <Form.Item
             label="Data Importance"
             name="dateImportance"
@@ -146,6 +159,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
+          {/* Admin Units */}
           <Form.Item
             label="Administrative Unit"
             name="adminUnits"
@@ -165,19 +179,19 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             </Select>
           </Form.Item>
 
+          {/* File Upload */}
           <Form.Item
             label="File Upload"
             name="file"
             valuePropName="file"
-            getValueFromEvent={(e: any) =>
-              Array.isArray(e) ? e : e?.fileList[0]
-            }
+            getValueFromEvent={(e: any) => e?.file?.originFileObj || null}
           >
             <Upload beforeUpload={() => false} maxCount={1}>
               <Button icon={<UploadOutlined />}>Upload File</Button>
             </Upload>
           </Form.Item>
 
+          {/* Submit Button */}
           <Form.Item>
             <Button
               type="primary"
