@@ -293,16 +293,16 @@ export default function RegisterPage() {
                 required: true,
                 message: "Please enter your password!",
               },
-              {
-                min: 8,
-                message: "Password must be at least 8 characters long",
-              },
-              {
-                pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                message:
-                  "Password must include uppercase, lowercase, number, and special character",
-              },
+              // {
+              //   min: 8,
+              //   message: "Password must be at least 8 characters long",
+              // },
+              // {
+              //   pattern:
+              //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+              //   message:
+              //     "Password must include uppercase, lowercase, number, and special character",
+              // },
             ]}
           >
             <Input.Password
