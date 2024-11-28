@@ -11,6 +11,7 @@ interface Report {
   description: string;
   start_date: string;
   end_date: string;
+  status: string;
 }
 
 const ReportPage = () => {
@@ -45,8 +46,11 @@ const ReportPage = () => {
 
         const uniqueReports = Array.from(
           new Set(filteredReports.map((report) => report._id))
-        ).map((id) => filteredReports.find((report) => report._id === id));
+        )
+          .map((id) => filteredReports.find((report) => report._id === id))
+          .filter((report) => report.status === "published");
 
+        console.log("uniqueReports: ", uniqueReports);
         setReports(uniqueReports as Report[]);
       } catch (err: any) {
         setError(err.message);
@@ -96,6 +100,12 @@ const ReportPage = () => {
           {new Date(date).toLocaleDateString()}
         </span>
       ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (text: string) => <span className="text-gray-600">{text}</span>,
     },
   ];
 
