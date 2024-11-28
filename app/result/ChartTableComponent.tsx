@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { Button, Radio, Table, Spin, Dropdown } from "antd";
 import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
-import StepsComponent from "../departments/_components/StepsCompnent/StepsCompnent";
+import StepsComponent from "../departments/components/StepsCompnent/StepsCompnent";
 import * as XLSX from "xlsx";
 
 interface FilteredValues {

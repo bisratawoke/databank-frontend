@@ -4,9 +4,10 @@ import { Button, Collapse, Drawer, Dropdown, Row, Col, Input } from "antd";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { FaFacebook, FaTelegram } from "react-icons/fa";
 import { AiOutlineSearch } from "react-icons/ai";
 import React from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import UserProfileDropdown from "./ProfileMenu";
 
 const { Panel } = Collapse;
 const { Search } = Input;
@@ -95,6 +96,7 @@ const MenuItems: MenuItem[] = [
 ];
 
 const NavBar: React.FC = () => {
+  const { data: session } = useSession();
   const [visible, setVisible] = useState<boolean>(false);
 
   const showDrawer = (): void => {
@@ -237,7 +239,7 @@ const NavBar: React.FC = () => {
       <div className="bg-navbarbackground w-full px-[5%] md:px-[10%] lg:px-[12%] xl:px-[16%]">
         <Row justify="space-between" align="middle" className="py-2">
           {/* Logo Section */}
-          <Col xs={12} lg={6}>
+          <Col xs={12} lg={4}>
             <Image
               src="/images/ess-logo-desc-1.svg"
               width={208}
@@ -249,7 +251,7 @@ const NavBar: React.FC = () => {
           </Col>
 
           {/* Search Input */}
-          <Col xs={8} lg={8} className="hidden lg:block">
+          <Col xs={8} lg={6} className="hidden lg:block">
             <Search
               placeholder="Search..."
               onSearch={onSearch}
@@ -270,23 +272,46 @@ const NavBar: React.FC = () => {
             />
           </Col>
 
-          {/* Social Icons */}
-          <Col xs={4} lg={2} className="text-right flex space-x-2">
-            <Link href="https://facebook.com" passHref>
-              <FaFacebook className="hidden lg:flex rounded-full bg-[#224986] p-2 text-2xl text-white transition-colors duration-300 hover:bg-[#BB9271] md:text-3xl" />
-            </Link>
-            <Link href="https://telegram.org" passHref>
-              <FaTelegram className="hidden lg:flex rounded-full bg-[#224986] p-2 text-2xl text-white transition-colors duration-300 hover:bg-[#BB9271] md:text-3xl" />
-            </Link>
+          {/* User/Social Section */}
+          <Col
+            xs={4}
+            lg={4}
+            className="text-right flex justify-end items-center space-x-2"
+          >
+            {/* Social Icons */}
+            {/* <div className="hidden lg:flex space-x-2 mr-4">
+              <Link href="https://facebook.com" passHref>
+                <FaFacebook className="rounded-full bg-[#224986] p-2 text-2xl text-white transition-colors duration-300 hover:bg-[#BB9271] md:text-3xl" />
+              </Link>
+              <Link href="https://telegram.org" passHref>
+                <FaTelegram className="rounded-full bg-[#224986] p-2 text-2xl text-white transition-colors duration-300 hover:bg-[#BB9271] md:text-3xl" />
+              </Link>
+            </div> */}
+
+            {/* User Authentication */}
+            {session ? (
+              <div className="flex justify-end">
+                <UserProfileDropdown session={session} />
+              </div>
+            ) : (
+              <Button
+                className="bg-[#BB9271] text-white hover:bg-[#a47c61]"
+                onClick={() => signIn()}
+              >
+                Login
+              </Button>
+            )}
           </Col>
-          <Row justify="end" className="lg:hidden bg-bluebrand rounded-md">
+
+          {/* Mobile Menu Toggle */}
+          <Col className="lg:hidden">
             <Button
               type="text"
               icon={<MenuOutlined className="text-white" />}
               onClick={showDrawer}
               style={{ color: "gold" }}
             />
-          </Row>
+          </Col>
         </Row>
       </div>
 
@@ -295,9 +320,6 @@ const NavBar: React.FC = () => {
         <Row justify="center" className="hidden lg:flex py-2">
           {renderMenuItems(MenuItems)}
         </Row>
-
-        {/* Mobile Menu Icon */}
-        <Row className="lg:hidden h-8"></Row>
 
         {/* Mobile Drawer Menu */}
         <Drawer
