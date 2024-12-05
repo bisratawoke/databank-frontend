@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Table, Spin } from "antd";
+import { Category, Department, SubCategory } from "@/app/components/types";
 
 // Define the type for the report data structure
 interface Report {
@@ -14,12 +15,12 @@ interface Report {
   status: string;
 }
 
-const ReportPage = () => {
+export default function ReportPage() {
   const router = useRouter();
   const pathname = usePathname();
   const params = pathname.split("/").slice(-2);
 
-  const departmentId = params[0];
+  // const departmentId = params[0];
   const subcategoryId = params[1];
 
   const [reports, setReports] = useState<Report[]>([]);
@@ -36,22 +37,27 @@ const ReportPage = () => {
         }
 
         const data = await response.json();
-        const filteredReports = data.flatMap((department: any) =>
-          department.category.flatMap((category: any) =>
+        const filteredReports = data.flatMap((department: Department) =>
+          department.category.flatMap((category: Category) =>
             category.subcategory
-              .filter((subcategory: any) => subcategory._id === subcategoryId)
-              .flatMap((subcategory: any) => subcategory.report)
+              .filter(
+                (subcategory: SubCategory) => subcategory._id === subcategoryId
+              )
+              .flatMap((subcategory: SubCategory) => subcategory.report)
           )
         );
 
         const uniqueReports = Array.from(
-          new Set(filteredReports.map((report) => report._id))
+          new Set(filteredReports.map((report: Report) => report._id))
         )
-          .map((id) => filteredReports.find((report) => report._id === id))
+          .map((id) =>
+            filteredReports.find((report: Report) => report._id === id)
+          )
           .filter((report) => report.status === "published");
 
         console.log("uniqueReports: ", uniqueReports);
         setReports(uniqueReports as Report[]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -60,7 +66,7 @@ const ReportPage = () => {
     };
 
     fetchData();
-  }, [subcategoryId]);
+  }, [subcategoryId, API_URL]);
 
   const handleRowClick = (reportId: string) => {
     router.push(`/filter/${reportId}`);
@@ -162,29 +168,8 @@ const ReportPage = () => {
       </div>
 
       <style jsx global>{`
-        .ant-table-custom .ant-table-thead > tr > th {
-          background-color: #f8fafc;
-          color: #1f2937;
-          font-weight: 600;
-          border-bottom: 2px solid #e5e7eb;
-          padding: 16px;
-        }
-
-        .ant-table-custom .ant-table-tbody > tr > td {
-          padding: 16px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .ant-table-custom .ant-table-tbody > tr:last-child > td {
-          border-bottom: none;
-        }
-
-        .ant-table-custom .ant-table-cell {
-          vertical-align: middle;
-        }
+        // ... (your existing global styles)
       `}</style>
     </div>
   );
-};
-
-export default ReportPage;
+}

@@ -1,9 +1,5 @@
-// app/page.tsx
+import DepartmentsPage from "./departments/page";
 
-import DepartmentsLists from "./components/DepartmentsLists";
-import InfoSection from "./components/InfoSection/InfoSection";
-
-// Fetching data on the server side in the app directory
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const fetchDepartments = async () => {
@@ -21,8 +17,10 @@ export default async function Home() {
 
   return (
     <>
-      <InfoSection />
-      <DepartmentsLists departments={departments} />
+      {/* <InfoSection /> */}
+      {/* <DepartmentsLists departments={departments} /> */}
+      {/* <HomePage /> */}
+      <DepartmentsPage departments={departments} />
     </>
   );
 }

@@ -1,0 +1,308 @@
+"use client";
+import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Layout, Badge, Empty, Pagination, Button, Drawer, Input } from "antd";
+import {
+  FolderOutlined,
+  FolderOpenOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Department } from "./types";
+import FilterSidebar from "./FilterSidebar";
+
+const { Sider, Content } = Layout;
+const { Search } = Input;
+
+interface DepartmentsListProps {
+  departments: Department[];
+}
+
+const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [selectedFilters, setSelectedFilters] = useState({
+    departments: [] as string[],
+    categories: [] as string[],
+    subcategories: [] as string[],
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [filterVisible, setFilterVisible] = useState(false);
+
+  // Filter change handler
+  const handleFilterChange = (
+    filterType: "departments" | "categories" | "subcategories",
+    id: string
+  ) => {
+    setSelectedFilters((prev) => {
+      const currentFilter = prev[filterType];
+      const newFilter = currentFilter.includes(id)
+        ? currentFilter.filter((filterId) => filterId !== id)
+        : [...currentFilter, id];
+
+      return {
+        ...prev,
+        [filterType]: newFilter,
+      };
+    });
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedFilters({
+      departments: [],
+      categories: [],
+      subcategories: [],
+    });
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  // Navigate to reports page
+  const navigateToReports = (
+    departmentId: string,
+    categoryId: string,
+    subcategoryId: string
+  ) => {
+    router.push(
+      `/departments/reports/${departmentId}/${categoryId}/${subcategoryId}`
+    );
+  };
+
+  // Search and filter logic
+  const filteredDepartments = useMemo(() => {
+    // Start with base filtering
+    let result = departments;
+
+    // Apply text search if search term exists
+    if (searchTerm.trim()) {
+      const searchTermLower = searchTerm.toLowerCase().trim();
+      result = result.filter((department) => {
+        // Check department name
+        if (department.name.toLowerCase().includes(searchTermLower)) {
+          return true;
+        }
+
+        // Check categories
+        const hasMatchingCategory = department.category.some((category) => {
+          // Check category name
+          if (category.name.toLowerCase().includes(searchTermLower)) {
+            return true;
+          }
+
+          // Check subcategories
+          const hasMatchingSubcategory = category.subcategory.some(
+            (subcategory) =>
+              subcategory.name.toLowerCase().includes(searchTermLower)
+          );
+
+          return hasMatchingSubcategory;
+        });
+
+        return hasMatchingCategory;
+      });
+    }
+
+    // Apply additional filters if any are selected
+    if (
+      selectedFilters.departments.length > 0 ||
+      selectedFilters.categories.length > 0 ||
+      selectedFilters.subcategories.length > 0
+    ) {
+      result = result.filter((department) => {
+        // If no department filters, or department is in selected filters
+        const departmentMatch =
+          selectedFilters.departments.length === 0 ||
+          selectedFilters.departments.includes(department._id);
+
+        // If department matches, filter categories
+        if (departmentMatch) {
+          const filteredCategories = department.category.filter((category) => {
+            const categoryMatch =
+              selectedFilters.categories.length === 0 ||
+              selectedFilters.categories.includes(category._id);
+
+            // If category matches, filter subcategories
+            if (categoryMatch) {
+              const filteredSubcategories = category.subcategory.filter(
+                (subcategory) =>
+                  selectedFilters.subcategories.length === 0 ||
+                  selectedFilters.subcategories.includes(subcategory._id)
+              );
+
+              return filteredSubcategories.length > 0;
+            }
+
+            return false;
+          });
+
+          return filteredCategories.length > 0;
+        }
+
+        return false;
+      });
+    }
+
+    return result;
+  }, [departments, selectedFilters, searchTerm]);
+
+  // Pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredDepartments.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  // Render nothing if no session
+  if (session === null) {
+    return null;
+  }
+
+  return (
+    <Layout className="min-h-screen bg-gray-50">
+      {/* Mobile Filter Toggle */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-50">
+        <Button
+          type="primary"
+          icon={<FilterOutlined />}
+          onClick={() => setFilterVisible(true)}
+          className="shadow-lg"
+        >
+          Filters
+        </Button>
+      </div>
+
+      {/* Sidebar for Large Screens */}
+      <Sider theme="light" width={300} className="hidden lg:block border-r">
+        <FilterSidebar
+          departments={departments}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          onResetFilters={handleResetFilters}
+        />
+      </Sider>
+
+      {/* Mobile Drawer Filter */}
+      <Drawer
+        title="Filters"
+        placement="right"
+        closable={true}
+        onClose={() => setFilterVisible(false)}
+        open={filterVisible}
+        className="lg:hidden"
+      >
+        <FilterSidebar
+          departments={departments}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          onResetFilters={handleResetFilters}
+        />
+      </Drawer>
+
+      {/* Main Content Area */}
+      <Content className="p-6">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+          <FolderOpenOutlined className="mr-3 text-primary" />
+          Departments and Categories
+        </h1>
+
+        {/* Search Input */}
+        <div className="mb-6">
+          <Search
+            placeholder="Search departments, categories, subcategories"
+            allowClear
+            enterButton={<SearchOutlined />}
+            size="large"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+
+        {filteredDepartments.length === 0 ? (
+          <Empty
+            description="No departments found matching your search or filters"
+            className="mt-20"
+          />
+        ) : (
+          <>
+            {currentItems.map((department) => (
+              <div
+                key={department._id}
+                className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden"
+              >
+                <div className="bg-gray-50 p-4 font-semibold text-gray-800 flex items-center">
+                  <FolderOutlined className="mr-2 text-primary" />
+                  {department.name}
+                </div>
+
+                {department.category.map((category) => (
+                  <div key={category._id} className="p-4 border-t">
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
+                      <FileTextOutlined className="mr-2 text-secondary" />
+                      {category.name}
+                    </h3>
+
+                    {category.subcategory.map((subcategory) => (
+                      <div
+                        key={subcategory._id}
+                        className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() =>
+                          navigateToReports(
+                            department._id,
+                            category._id,
+                            subcategory._id
+                          )
+                        }
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="font-medium text-gray-600">
+                            {subcategory.name}
+                          </div>
+                          {subcategory.report &&
+                            subcategory.report.length > 0 && (
+                              <Badge
+                                count={subcategory.report.length}
+                                color="#1890ff"
+                                style={{ backgroundColor: "#e6f7ff" }}
+                              />
+                            )}
+                        </div>
+                        {(!subcategory.report ||
+                          subcategory.report.length === 0) && (
+                          <div className="text-gray-400 text-sm mt-1">
+                            No reports available
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {/* Pagination */}
+            <div className="flex justify-center mt-6">
+              <Pagination
+                current={currentPage}
+                total={filteredDepartments.length}
+                pageSize={itemsPerPage}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+              />
+            </div>
+          </>
+        )}
+      </Content>
+    </Layout>
+  );
+};
+
+export default DepartmentsList;

@@ -1,15 +1,15 @@
 import React from "react";
-import ReportPage from "./reports/[...departmentId]/page";
 import StepsComponent from "./components/StepsCompnent/StepsCompnent";
 
-const layout = () => {
+export default function DepartmentsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <StepsComponent currentStep={0} />
-
-      <ReportPage />
+      {children}
     </>
   );
-};
-
-export default layout;
+}
