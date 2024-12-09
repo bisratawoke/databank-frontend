@@ -4,13 +4,13 @@ import React from "react";
 import { Collapse, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import Link from "next/link";
-import type { Department } from "./types";
+// import type { Department } from "./types";
 
 const { Panel } = Collapse;
 const { Title } = Typography;
 
 interface DepartmentsListsProps {
-  departments: Department[];
+  departments: any[];
 }
 
 interface CustomExpandIconProps {

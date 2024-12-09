@@ -249,12 +249,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: userDetails }) => {
           </div>
 
           <div className="mt-6 flex space-x-4">
-            <Link
+            {/* <Link
               href="/edit-profile"
               className="flex-1 bg-[#BB9271] text-white py-2 px-4 rounded-lg text-center hover:bg-[#a47c61] transition"
             >
               Edit Profile
-            </Link>
+            </Link> */}
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg flex items-center justify-center hover:bg-red-600 transition"
