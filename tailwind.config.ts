@@ -17,6 +17,16 @@ const config: Config = {
         brandgold: "#BB9271",
         lightbluebackground: "#E9F6FF",
       },
+      keyframes: {
+        progress: {
+          '0%': { transform: 'scaleX(0)' },
+          '40%': { transform: 'scaleX(0.4)' },
+          '100%': { transform: 'scaleX(1)' },
+        }
+      },
+      animation: {
+        progress: 'progress 1.5s ease-in-out infinite',
+      }
     },
   },
   plugins: [],

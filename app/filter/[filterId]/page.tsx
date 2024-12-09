@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Spin } from "antd";
 import { Checkbox } from "antd";
 import ChartTableComponent from "@/app/result/ChartTableComponent";
 import StepsComponent from "../_components/StepsCompnent/StepsCompnent";
+import { useSession } from "next-auth/react";
 
 interface Field {
   _id: string;
@@ -42,11 +43,12 @@ interface Report {
 interface SelectedItemsState {
   [fieldId: string]: Set<string>;
 }
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const FilteredReportPage = () => {
+  const { data: session } = useSession();
   const params = useParams();
   const { filterId } = params;
-  const router = useRouter();
 
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,7 +58,6 @@ const FilteredReportPage = () => {
     useState<SelectedItemsState>({});
 
   const [selectedFilters, setSelectedFilters] = useState({});
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (!filterId) {
@@ -65,15 +66,52 @@ const FilteredReportPage = () => {
       return;
     }
 
+    //   const fetchReport = async () => {
+    //     try {
+    //       const response = await fetch(`${API_URL}/portal-reports/${filterId}`);
+    //       if (!response.ok) {
+    //         throw new Error(`Failed to fetch the report: ${response.statusText}`);
+    //       }
+
+    //       const data = await response.json();
+    //       console.log("fetchedReprots: ", data);
+    //       setReport(data);
+
+    //       // Initialize selected items state for each field
+    //       const initialSelectedState: SelectedItemsState = {};
+    //       data.fields
+    //         .filter((field: Field) => field.filtered)
+    //         .forEach((field: Field) => {
+    //           initialSelectedState[field._id] = new Set();
+    //         });
+    //       setSelectedItemsPerField(initialSelectedState);
+    //     } catch (err: any) {
+    //       setError(err.message);
+    //     } finally {
+    //       setLoading(false);
+    //     }
+    //   };
+
+    //   fetchReport();
+    // }, [filterId]);
+
     const fetchReport = async () => {
       try {
-        const response = await fetch(`${API_URL}/reports/${filterId}`);
+        // Use the access token from the session
+        const response = await fetch(`${API_URL}/reports/${filterId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`, // Assumes your session includes an accessToken
+            "Content-Type": "application/json",
+          },
+        });
+
         if (!response.ok) {
           throw new Error(`Failed to fetch the report: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log("fetchedReprots: ", data);
+        console.log("fetchedReports: ", data);
         setReport(data);
 
         // Initialize selected items state for each field
@@ -86,13 +124,22 @@ const FilteredReportPage = () => {
         setSelectedItemsPerField(initialSelectedState);
       } catch (err: any) {
         setError(err.message);
+
+        // Optional: Handle unauthorized errors
+        if (
+          err.message.includes("401") ||
+          err.message.includes("Unauthorized")
+        ) {
+          // Redirect to login or handle token expiration
+          router.push("/login");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchReport();
-  }, [filterId]);
+  }, [filterId, session]); // Add session to dependency array
 
   const handleSelectAll = (fieldId: string, items: string[]) => {
     setSelectedItemsPerField((prev) => ({

@@ -1,0 +1,6 @@
+export enum UserType {
+    INDIVIDUAL = 'INDIVIDUAL',
+    COMPANY = 'COMPANY',
+    NGO = 'NGO',
+    FOREIGN_COMPANY = 'FOREIGN_COMPANY',
+}

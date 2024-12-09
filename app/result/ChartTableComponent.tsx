@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { Button, Radio, Table, Spin, Dropdown } from "antd";
 import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
-import StepsComponent from "../departments/_components/StepsCompnent/StepsCompnent";
+import StepsComponent from "../departments/components/StepsCompnent/StepsCompnent";
 import * as XLSX from "xlsx";
 
 interface FilteredValues {
@@ -260,12 +260,12 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             >
               Show as chart
             </Button>
-            <Button
+            {/* <Button
               type={view === "description" ? "primary" : "default"}
               onClick={() => setView("description")}
             >
               Description
-            </Button>
+            </Button> */}
           </div>
           <div className="flex gap-2">
             <Dropdown menu={exportMenuItems} placement="bottomRight">
@@ -277,7 +277,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           </div>
         </div>
 
-        <Radio.Group
+        {/* <Radio.Group
           onChange={handleTimeFrameChange}
           value={timeFrame}
           className="mb-5"
@@ -288,7 +288,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           <Radio.Button value="1Year">1 Year</Radio.Button>
           <Radio.Button value="2Year">2 Year</Radio.Button>
           <Radio.Button value="5Year">5 Year</Radio.Button>
-        </Radio.Group>
+        </Radio.Group> */}
 
         {view === "table" && (
           <Table
