@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Layout, Badge, Empty, Pagination, Button, Drawer, Input } from "antd";
@@ -32,6 +32,12 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [filterVisible, setFilterVisible] = useState(false);
+
+  useEffect(() => {
+    if (session === null) {
+      router.push("/auth/signin");
+    }
+  }, [session, router]);
 
   // Filter change handler
   const handleFilterChange = (
@@ -225,7 +231,7 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
             }}
           />
         </div>
-
+        {/* 
         {filteredDepartments.length === 0 ? (
           <Empty
             description="No departments found matching your search or filters"
@@ -265,6 +271,80 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                         <div className="flex justify-between items-center">
                           <div className="font-medium text-gray-600">
                             {subcategory.name}
+                          </div>
+                          {subcategory.report &&
+                            subcategory.report.length > 0 && (
+                              <Badge
+                                count={subcategory.report.length}
+                                color="#1890ff"
+                                style={{ backgroundColor: "#e6f7ff" }}
+                              />
+                            )}
+                        </div>
+                        {(!subcategory.report ||
+                          subcategory.report.length === 0) && (
+                          <div className="text-gray-400 text-sm mt-1">
+                            No reports available
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))} */}
+
+        {filteredDepartments.length === 0 ? (
+          <Empty
+            description="No departments found matching your search or filters"
+            className="mt-20"
+          />
+        ) : (
+          <>
+            {currentItems.map((department) => (
+              <div
+                key={department._id}
+                className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden"
+              >
+                {/* Department Header */}
+                <div className="bg-gray-50 p-4 font-semibold text-gray-800 flex items-center">
+                  <FolderOutlined className="mr-2 text-primary" />
+                  <span>{department.name}</span>
+                  <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                    Department
+                  </span>
+                </div>
+
+                {/* Categories */}
+                {department.category.map((category) => (
+                  <div key={category._id} className="p-4 border-t">
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
+                      <FileTextOutlined className="mr-2 text-secondary" />
+                      <span>{category.name}</span>
+                      <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                        Category
+                      </span>
+                    </h3>
+
+                    {/* Subcategories */}
+                    {category.subcategory.map((subcategory) => (
+                      <div
+                        key={subcategory._id}
+                        className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() =>
+                          navigateToReports(
+                            department._id,
+                            category._id,
+                            subcategory._id
+                          )
+                        }
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="font-medium text-gray-600 flex items-center">
+                            {subcategory.name}
+                            <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+                              Subcategory
+                            </span>
                           </div>
                           {subcategory.report &&
                             subcategory.report.length > 0 && (
