@@ -5,9 +5,9 @@ const SinglePublicationBreadcrumb: FC<{
   publicationTitle: string;
 }> = ({ categoryName, publicationTitle }) => (
   <div>
-    <span className="text-[16px] font-bold">Home / </span>
-    <span className="text-[16px] font-bold">{categoryName} / </span>
-    <span className="text-[16px] font-bold">{publicationTitle}</span>
+    <span className="text-[24px] font-bold">Home / </span>
+    <span className="text-[24px] font-bold">{categoryName} / </span>
+    <span className="text-[24px] font-bold">{publicationTitle}</span>
   </div>
 );
 

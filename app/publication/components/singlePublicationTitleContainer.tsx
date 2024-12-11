@@ -21,7 +21,7 @@ export default function SinglePublicationTitleContainer({
             categoryName={categoryName}
             publicationTitle={publicationTitle}
           />
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <SinglePublicationTitle title={title} />
             <SinglePublicationPublishedDate publishedDate={publishedDate} />
           </div>
