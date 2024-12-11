@@ -1,6 +1,7 @@
 "use client";
 import { Table } from "antd";
 import { useRouter } from "next/navigation";
+import DepartmentListJumbotron from "./departmentListJumbotron";
 export default function PublicationList({
   publications,
 }: {
@@ -9,7 +10,7 @@ export default function PublicationList({
   const router = useRouter();
   const columns = [
     {
-      title: "Title",
+      title: <span className="font-bold text-[32px]">Title</span>,
       dataIndex: "fileName",
       key: "fileName",
       render: (value: string) => (
@@ -21,21 +22,24 @@ export default function PublicationList({
   ];
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="col-start-3 col-end-10">
-        <Table
-          dataSource={publications}
-          columns={columns}
-          rowKey="_id"
-          pagination={false}
-          onRow={(record) => {
-            return {
-              onClick: () => {
-                router.push(`/publication/view/${record._id}`);
-              },
-            };
-          }}
-        />
+    <div>
+      <DepartmentListJumbotron />
+      <div className="grid grid-cols-12">
+        <div className="col-start-3 col-end-10">
+          <Table
+            dataSource={publications}
+            columns={columns}
+            rowKey="_id"
+            pagination={false}
+            onRow={(record) => {
+              return {
+                onClick: () => {
+                  router.push(`/publication/view/${record._id}`);
+                },
+              };
+            }}
+          />
+        </div>
       </div>
     </div>
   );
