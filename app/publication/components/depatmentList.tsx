@@ -4,6 +4,7 @@ import React from "react";
 import { Collapse, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import DepartmentListJumbotron from "./departmentListJumbotron";
 // import type { Department } from "./types";
 
 const { Panel } = Collapse;
@@ -31,38 +32,40 @@ const DepartmentsLists = ({ departments }: DepartmentsListsProps) => {
   );
 
   return (
-    <div className="p-4 md:p-6 xl:px-[17%]">
-      <Title level={3} className="mb-6 font-bold text-left">
-        Choose Topic And Table
-      </Title>
-      <Collapse
-        expandIconPosition="end"
-        expandIcon={customExpandIcon}
-        bordered={false}
-        style={{
-          background: "none",
-        }}
-      >
-        {departments.map((department) => (
-          <Panel
-            header={department.name}
-            key={department._id}
-            style={{
-              borderBottom: "1px solid #ddd",
-              fontWeight: "bold",
-              padding: "10px 0",
-            }}
-            className="custom-panel"
-          >
-            {department.category.map((cat) => (
-              <Collapse key={cat._id} ghost expandIcon={customExpandIcon}>
-                <Link
-                  href={`/publication/${department._id}/${cat._id}`}
-                  className="pl-[10px] font-bold hover:cursor-pointer"
-                >
-                  {cat.name}
-                </Link>
-                {/* <Panel
+    <div>
+      <DepartmentListJumbotron />
+      <div className="p-4 md:p-6 xl:px-[17%]">
+        <Title level={3} className="mb-6 font-bold text-left">
+          Choose Topic And Table
+        </Title>
+        <Collapse
+          expandIconPosition="end"
+          expandIcon={customExpandIcon}
+          bordered={false}
+          style={{
+            background: "none",
+          }}
+        >
+          {departments.map((department) => (
+            <Panel
+              header={department.name}
+              key={department._id}
+              style={{
+                borderBottom: "1px solid #ddd",
+                fontWeight: "bold",
+                padding: "10px 0",
+              }}
+              className="custom-panel"
+            >
+              {department.category.map((cat) => (
+                <Collapse key={cat._id} ghost expandIcon={customExpandIcon}>
+                  <Link
+                    href={`/publication/${department._id}/${cat._id}`}
+                    className="pl-[10px] font-bold hover:cursor-pointer"
+                  >
+                    {cat.name}
+                  </Link>
+                  {/* <Panel
                   header={cat.name}
                   key={cat._id}
                   style={{
@@ -87,11 +90,12 @@ const DepartmentsLists = ({ departments }: DepartmentsListsProps) => {
                     </div>
                   ))}
                 </Panel> */}
-              </Collapse>
-            ))}
-          </Panel>
-        ))}
-      </Collapse>
+                </Collapse>
+              ))}
+            </Panel>
+          ))}
+        </Collapse>
+      </div>
     </div>
   );
 };
