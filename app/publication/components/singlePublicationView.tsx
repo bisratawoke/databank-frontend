@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SinglePublicationTitleContainer from "./singlePublicationTitleContainer";
 import SinglePublicationDownloadButton from "./singlePublicationDownloadButton";
 import SinglePublicationPreview from "./singlePublicationPreview";
+import SinglePublicationDesciptionContainer from "./singlePublicationDescriptionContainer";
 
 export default function SinglePublicationView({
   publication,
@@ -90,6 +91,9 @@ export default function SinglePublicationView({
         </div>
 
         <div className="col-start-5 col-end-11  p-6 pl-10">
+          <SinglePublicationDesciptionContainer
+            description={metadata.description}
+          />
           {metadata.description}
         </div>
       </div>
