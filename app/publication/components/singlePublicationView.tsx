@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SinglePublicationTitleContainer from "./singlePublicationTitleContainer";
+import SinglePublicationDownloadButton from "./singlePublicationDownloadButton";
 
 export default function SinglePublicationView({
   publication,
@@ -52,85 +53,86 @@ export default function SinglePublicationView({
 
   return (
     <div className="">
-      <SinglePublicationTitleContainer title={metadata.title} />
-      <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <div>
-          <h1 className="text-2xl font-semibold text-center text-gray-800 mt-2">
-            {metadata.title}
-          </h1>
-        </div>
-        {/* File Preview */}
-        <div className="mt-6 mb-4">
-          <strong className="block text-lg font-medium text-gray-700">
-            File Preview:
-          </strong>
-          <div className="mt-2 p-4 bg-gray-100 rounded-lg border border-gray-300">
-            {filePreview ? (
-              fileType.startsWith("image/") ? (
-                <img
-                  src={filePreview}
-                  alt={fileName}
-                  className="max-w-full h-auto rounded-lg"
-                />
-              ) : fileType === "pdf" || metadata.type === "application/pdf" ? (
-                <iframe
-                  src={filePreview}
-                  width="100%"
-                  height="500px"
-                  className="border-0 rounded-lg"
-                  title="PDF Preview"
-                ></iframe>
-              ) : typeof filePreview === "string" ? (
-                <pre className="whitespace-pre-wrap text-gray-600">
-                  {filePreview}
-                </pre>
-              ) : (
-                <div className="text-gray-600">
-                  Preview not available for this file type.
-                </div>
-              )
-            ) : (
-              <div className="text-gray-600">
-                Preview not available for this file.
+      <SinglePublicationTitleContainer
+        title={metadata.title}
+        publishedDate={metadata.updatedAt}
+      />
+      <div className="grid grid-cols-12">
+        <div className="col-start-3 col-end-5">
+          <div className="max-w-3xl mx-auto  bg-white rounded-lg shadow-lg">
+            {/* File Preview */}
+            <div className="mt-6 mb-4">
+              <div className="mt-2 p-4 bg-gray-100 rounded-lg border border-gray-300">
+                {filePreview ? (
+                  fileType.startsWith("image/") ? (
+                    <img
+                      src={filePreview}
+                      alt={fileName}
+                      className="max-w-full h-auto rounded-lg"
+                    />
+                  ) : fileType === "pdf" ||
+                    metadata.type === "application/pdf" ? (
+                    <iframe
+                      src={filePreview}
+                      width="100%"
+                      height="500px"
+                      className="border-0 rounded-lg"
+                      title="PDF Preview"
+                    ></iframe>
+                  ) : typeof filePreview === "string" ? (
+                    <pre className="whitespace-pre-wrap text-gray-600">
+                      {filePreview}
+                    </pre>
+                  ) : (
+                    <div className="text-gray-600">
+                      Preview not available for this file type.
+                    </div>
+                  )
+                ) : (
+                  <div className="text-gray-600">
+                    Preview not available for this file.
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-        <p className="text-lg text-gray-600 mt-4">{metadata.description}</p>
-        <div className="mt-8 space-y-4">
-          <div>
-            <strong className="block text-lg font-medium text-gray-700">
-              File Name:
-            </strong>
-            <p className="text-gray-600">{fileName}</p>
-          </div>
+            </div>
+            {/* <p className="text-lg text-gray-600 mt-4">{metadata.description}</p> */}
+            {/* <div className="mt-8 space-y-4">
+              <div>
+                <strong className="block text-lg font-medium text-gray-700">
+                  File Name:
+                </strong>
+                <p className="text-gray-600">{fileName}</p>
+              </div>
 
-          <div>
-            <strong className="block text-lg font-medium text-gray-700">
-              Uploaded On:
-            </strong>
-            <p className="text-gray-600">
-              {new Date(uploadDate).toLocaleDateString()}
-            </p>
+              <div>
+                <strong className="block text-lg font-medium text-gray-700">
+                  Uploaded On:
+                </strong>
+                <p className="text-gray-600">
+                  {new Date(uploadDate).toLocaleDateString()}
+                </p>
+              </div>
+            </div> */}
+            <div className="mt-8">
+              {publicationType === "PUBLIC" ? (
+                <SinglePublicationDownloadButton link={permanentLink} />
+              ) : // <a
+              //   href={`http://${permanentLink}`}
+              //   download={fileName}
+              //   className="inline-block px-4 py-2 bg-green-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-green-600 transition-colors duration-300"
+              // >
+              //   Download
+              // </a>
+              publicationType === "FOR_SALE" ? (
+                <a
+                  href="/publication-request/post"
+                  className="inline-block px-4 py-2 bg-blue-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-blue-600 transition-colors duration-300"
+                >
+                  Pay Now
+                </a>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <div className="mt-8">
-          {publicationType === "PUBLIC" ? (
-            <a
-              href={`http://${permanentLink}`}
-              download={fileName}
-              className="inline-block px-4 py-2 bg-green-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-green-600 transition-colors duration-300"
-            >
-              Download
-            </a>
-          ) : publicationType === "FOR_SALE" ? (
-            <a
-              href="/publication-request/post"
-              className="inline-block px-4 py-2 bg-blue-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-blue-600 transition-colors duration-300"
-            >
-              Pay Now
-            </a>
-          ) : null}
         </div>
       </div>
     </div>
