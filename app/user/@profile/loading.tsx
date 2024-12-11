@@ -30,9 +30,6 @@ export default function Loading() {
           <div className="mb-4 flex items-center">
             <Skeleton paragraph />
           </div>
-          <div className="mb-4 flex items-center">
-            <Skeleton paragraph />
-          </div>
         </div>
       </div>
     </div>
