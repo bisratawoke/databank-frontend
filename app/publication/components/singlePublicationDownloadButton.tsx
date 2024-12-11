@@ -14,6 +14,7 @@ const SinglePublicationDownloadButton: FC<{ link: string }> = ({ link }) => {
       onClick={(e) => {
         window.open(`http://${link}`);
       }}
+      className="w-[100%]"
     >
       Download Full Report
     </Button>
