@@ -4,6 +4,6 @@ export default async function Page({ params }: any) {
   const publicationId = params.publicationId;
 
   const { body } = await FetchPublicationById({ publicationId });
-
+  console.log(body);
   return <SinglePublicationView publication={body} />;
 }

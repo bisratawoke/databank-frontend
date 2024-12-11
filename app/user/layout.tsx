@@ -1,11 +1,9 @@
 export default async function Layout({
   profile,
   publication_request_status_tracker,
-  children,
 }: {
   profile: React.ReactNode;
   publication_request_status_tracker: React.ReactNode;
-  children: React.ReactNode[];
 }) {
   return (
     <div className="grid grid-cols-12">
