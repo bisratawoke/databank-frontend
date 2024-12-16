@@ -21,6 +21,7 @@ interface DepartmentsListProps {
 }
 
 const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
+  // console.log("fetched departments: ", departments);
   const router = useRouter();
   const { data: session } = useSession();
   const [selectedFilters, setSelectedFilters] = useState({
@@ -156,6 +157,9 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
     return result;
   }, [departments, selectedFilters, searchTerm]);
 
+  // console.log("departments: ", departments);
+
+  // console.log("filteredDepartments: ", filteredDepartments);
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -307,23 +311,33 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                 className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden"
               >
                 {/* Department Header */}
-                <div className="bg-gray-50 p-4 font-semibold text-gray-800 flex items-center">
-                  <FolderOutlined className="mr-2 text-primary" />
-                  <span>{department.name}</span>
-                  <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                    Department
-                  </span>
+                <div className="bg-gray-50 p-4 font-semibold text-gray-800 grid grid-flow-col justify-between">
+                  <div className="flex items-start">
+                    <FolderOutlined className="mr-2 text-primary" />
+                    <span>{department.name}</span>
+                  </div>
+                  <div className="place-items-end">
+                    <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                      Department
+                    </span>
+                  </div>
                 </div>
 
                 {/* Categories */}
                 {department.category.map((category) => (
-                  <div key={category._id} className="p-4 border-t">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
-                      <FileTextOutlined className="mr-2 text-secondary" />
-                      <span>{category.name}</span>
-                      <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                        Category
-                      </span>
+                  <div key={category._id} className=" p-4 border-t">
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 grid grid-flow-col justify-between">
+                      <div className="flex items-start">
+                        <FileTextOutlined className="mr-2 text-secondary" />
+                        <span className="place-items-start">
+                          {category.name}
+                        </span>
+                      </div>
+                      <div className="place-items-end">
+                        <span className="justify-end ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                          Category
+                        </span>
+                      </div>
                     </h3>
 
                     {/* Subcategories */}
@@ -339,28 +353,33 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                           )
                         }
                       >
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium text-gray-600 flex items-center">
-                            {subcategory.name}
-                            <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
-                              Subcategory
-                            </span>
+                        <div className="grid grid-flow-col justify-between ">
+                          {/* Left: Subcategory Name and Tag */}
+                          <div className=" place-items-start">
+                            <div className="font-medium text-gray-600">
+                              {subcategory.name}
+                            </div>
+                            <div className="place-items-end">
+                              <span className="justify-end ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+                                Subcategory
+                              </span>
+                            </div>
                           </div>
+
+                          {/* Right: Reports Badge or No Reports */}
                           {subcategory.report &&
-                            subcategory.report.length > 0 && (
-                              <Badge
-                                count={subcategory.report.length}
-                                color="#1890ff"
-                                style={{ backgroundColor: "#e6f7ff" }}
-                              />
-                            )}
+                          subcategory.report.length > 0 ? (
+                            <Badge
+                              count={subcategory.report.length}
+                              color="#1890ff"
+                              style={{ backgroundColor: "#e6f7ff" }}
+                            />
+                          ) : (
+                            <div className="text-gray-400 text-sm">
+                              No reports available
+                            </div>
+                          )}
                         </div>
-                        {(!subcategory.report ||
-                          subcategory.report.length === 0) && (
-                          <div className="text-gray-400 text-sm mt-1">
-                            No reports available
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>

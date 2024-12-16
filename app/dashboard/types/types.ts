@@ -1,3 +1,39 @@
+export interface FieldType {
+    _id: string;
+    name: string;
+    description: string;
+    exampleValue: string;
+};
+
+
+export interface Field {
+    _id?: string;
+    name: string;
+    filtered: boolean;
+    type: FieldType;
+    options: string[];
+};
+export interface Report {
+    id: string;
+    name: string;
+    fields: Field[];
+}
+
+
+export interface FilterOption {
+    id: string;
+    name: string;
+    type: 'select' | 'input' | 'checkbox' | 'range';
+    options?: string[];
+    mandatory?: boolean;
+}
+
+export interface FilterState {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    selectedFilters: Record<string, any>;
+    mandatoryFilters: string[];
+}
+
 
 export interface Subcategory {
     _id: string;
@@ -22,7 +58,6 @@ export interface Report {
 }
 
 export interface Department {
-
     _id: string;
     name: string;
     category: Category[];

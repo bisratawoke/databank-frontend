@@ -1,1092 +1,63 @@
-// "use client";
+/* eslint-disable */
 
-// import { useEffect, useState } from "react";
-// import { useParams } from "next/navigation";
-// import { Spin } from "antd";
-// import { Checkbox } from "antd";
-// import ChartTableComponent from "@/app/result/ChartTableComponent";
-// import StepsComponent from "../_components/StepsCompnent/StepsCompnent";
-// import { useSession } from "next-auth/react";
-
-// interface Field {
-//   _id: string;
-//   name: string;
-//   type: {
-//     _id: string;
-//     name: string;
-//     description: string;
-//     exampleValue: string;
-//   };
-//   filtered: boolean;
-//   required: boolean;
-//   description: string;
-//   defaultValue: string;
-// }
-
-// interface DataItem {
-//   _id: string;
-//   field: Field;
-//   value: string;
-// }
-
-// interface Report {
-//   _id: string;
-//   name: string;
-//   description: string;
-//   start_date: string;
-//   end_date: string;
-//   fields: Field[];
-//   data: DataItem[];
-// }
-
-// // New interface for selected items per field
-// interface SelectedItemsState {
-//   [fieldId: string]: Set<string>;
-// }
-// const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// const FilteredReportPage = () => {
-//   const { data: session } = useSession();
-//   const params = useParams();
-//   const { filterId } = params;
-
-//   const [report, setReport] = useState<Report | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const [showChartTable, setShowChartTable] = useState(false);
-//   const [selectedItemsPerField, setSelectedItemsPerField] =
-//     useState<SelectedItemsState>({});
-
-//   const [selectedFilters, setSelectedFilters] = useState({});
-
-//   useEffect(() => {
-//     if (!filterId) {
-//       setError("No filter ID provided");
-//       setLoading(false);
-//       return;
-//     }
-
-//     //   const fetchReport = async () => {
-//     //     try {
-//     //       const response = await fetch(`${API_URL}/portal-reports/${filterId}`);
-//     //       if (!response.ok) {
-//     //         throw new Error(`Failed to fetch the report: ${response.statusText}`);
-//     //       }
-
-//     //       const data = await response.json();
-//     //       console.log("fetchedReprots: ", data);
-//     //       setReport(data);
-
-//     //       // Initialize selected items state for each field
-//     //       const initialSelectedState: SelectedItemsState = {};
-//     //       data.fields
-//     //         .filter((field: Field) => field.filtered)
-//     //         .forEach((field: Field) => {
-//     //           initialSelectedState[field._id] = new Set();
-//     //         });
-//     //       setSelectedItemsPerField(initialSelectedState);
-//     //     } catch (err: any) {
-//     //       setError(err.message);
-//     //     } finally {
-//     //       setLoading(false);
-//     //     }
-//     //   };
-
-//     //   fetchReport();
-//     // }, [filterId]);
-
-//     const fetchReport = async () => {
-//       try {
-//         // Use the access token from the session
-//         const response = await fetch(`${API_URL}/reports/${filterId}`, {
-//           method: "GET",
-//           headers: {
-//             Authorization: `Bearer ${session?.accessToken}`, // Assumes your session includes an accessToken
-//             "Content-Type": "application/json",
-//           },
-//         });
-
-//         if (!response.ok) {
-//           throw new Error(`Failed to fetch the report: ${response.statusText}`);
-//         }
-
-//         const data = await response.json();
-//         console.log("fetchedReports: ", data);
-//         setReport(data);
-
-//         // Initialize selected items state for each field
-//         const initialSelectedState: SelectedItemsState = {};
-//         data.fields
-//           .filter((field: Field) => field.filtered)
-//           .forEach((field: Field) => {
-//             initialSelectedState[field._id] = new Set();
-//           });
-//         setSelectedItemsPerField(initialSelectedState);
-//       } catch (err: any) {
-//         setError(err.message);
-
-//         // Optional: Handle unauthorized errors
-//         if (
-//           err.message.includes("401") ||
-//           err.message.includes("Unauthorized")
-//         ) {
-//           // Redirect to login or handle token expiration
-//           router.push("/login");
-//         }
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchReport();
-//   }, [filterId, session]); // Add session to dependency array
-
-//   const handleSelectAll = (fieldId: string, items: string[]) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(items),
-//     }));
-//   };
-
-//   const handleDeselectAll = (fieldId: string) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(),
-//     }));
-//   };
-
-//   const handleItemChange = (fieldId: string, item: string) => {
-//     setSelectedItemsPerField((prev) => {
-//       const currentFieldSelections = new Set(prev[fieldId]);
-//       if (currentFieldSelections.has(item)) {
-//         currentFieldSelections.delete(item);
-//       } else {
-//         currentFieldSelections.add(item);
-//       }
-//       return {
-//         ...prev,
-//         [fieldId]: currentFieldSelections,
-//       };
-//     });
-//   };
-
-//   const filteredFields = report?.fields.filter((field) => field.filtered) ?? [];
-
-//   const groupedDataItems = filteredFields.reduce((acc, field) => {
-//     const filteredItemsForField =
-//       report?.data
-//         .filter((dataItem) => dataItem.field._id === field._id)
-//         .map((dataItem) => dataItem.value) ?? [];
-
-//     if (!acc[field._id]) {
-//       acc[field._id] = {
-//         fieldName: field.name,
-//         values: new Set(filteredItemsForField),
-//       };
-//     } else {
-//       filteredItemsForField.forEach((value) =>
-//         acc[field._id].values.add(value)
-//       );
-//     }
-
-//     return acc;
-//   }, {} as { [key: string]: { fieldName: string; values: Set<string> } });
-
-//   const handleNextClick = () => {
-//     // Create selectedFilters object with the correct structure
-//     const filtersSelected = Object.entries(selectedItemsPerField).reduce(
-//       (acc, [fieldId, selectedValues]) => {
-//         const field = report?.fields.find((field) => field._id === fieldId);
-//         if (field) {
-//           acc[field.name] = Array.from(selectedValues);
-//         }
-//         return acc;
-//       },
-//       {} as { [fieldName: string]: string[] }
-//     );
-
-//     // Toggle the next component to render and pass props
-//     console.log("Selected Filters: ", filtersSelected); // Check the structure
-//     setShowChartTable(true);
-//     setSelectedFilters(filtersSelected);
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="w-full h-screen flex items-center justify-center">
-//         <Spin spinning={loading} size="large">
-//           <div className="p-12">Loading report...</div>
-//         </Spin>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="w-full p-8 text-center">
-//         <div className="text-red-600 font-semibold mb-2">Error</div>
-//         <div>{error}</div>
-//       </div>
-//     );
-//   }
-
-//   if (showChartTable && report) {
-//     console.log("report: ", report);
-
-//     // Render the ChartTableComponent with selected filters and the report data
-//     return (
-//       <ChartTableComponent report={report} selectedFilters={selectedFilters} />
-//     );
-//   }
-
-//   return (
-//     <>
-//       <StepsComponent currentStep={1} />
-
-//       <div className="w-full flex flex-col gap-4 px-8 items-center justify-center">
-//         <h1 className="text-xl font-semibold mb-4">
-//           Reports with Filtered Fields
-//         </h1>
-//         {Object.keys(groupedDataItems).length > 0 ? (
-//           <div className="flex flex-wrap gap-6">
-//             {Object.entries(groupedDataItems).map(
-//               ([fieldId, { fieldName, values }]) => (
-//                 <div
-//                   key={fieldId}
-//                   className="flex-1 min-w-[300px] max-w-[400px]"
-//                 >
-//                   <h2 className="text-lg font-semibold mb-2">
-//                     {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
-//                   </h2>
-//                   <div className="bg-[#2B5BA8] text-white rounded-md h-[400px] flex flex-col">
-//                     <div className="p-4 space-y-2">
-//                       <div className="flex justify-between mb-2">
-//                         <button
-//                           className="bg-white text-[#2B5BA8] px-3 py-1.5 rounded hover:bg-gray-100 transition-colors"
-//                           onClick={() => handleSelectAll(fieldId, [...values])}
-//                         >
-//                           Select all
-//                         </button>
-//                         <button
-//                           className="bg-white text-[#2B5BA8] px-3 py-1.5 rounded hover:bg-gray-100 transition-colors"
-//                           onClick={() => handleDeselectAll(fieldId)}
-//                         >
-//                           Deselect all
-//                         </button>
-//                       </div>
-//                       <div className="text-sm">
-//                         Selected {selectedItemsPerField[fieldId]?.size ?? 0} of
-//                         total {values.size}
-//                       </div>
-//                     </div>
-//                     <div className="flex-1 bg-white text-black rounded-md mx-4 mb-4 overflow-y-auto">
-//                       <div className="p-2 space-y-1">
-//                         {[...values].map((value) => (
-//                           <Checkbox
-//                             key={value}
-//                             checked={selectedItemsPerField[fieldId]?.has(value)}
-//                             onChange={() => handleItemChange(fieldId, value)}
-//                             className="w-full hover:bg-gray-50 p-1 rounded"
-//                           >
-//                             {value}
-//                           </Checkbox>
-//                         ))}
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               )
-//             )}
-//           </div>
-//         ) : (
-//           <p>No reports found with filtered fields.</p>
-//         )}
-//         <button
-//           onClick={handleNextClick}
-//           className="mt-6 bg-[#2B5BA8] text-white px-4 py-2 rounded hover:bg-[#234a87] transition-colors"
-//         >
-//           Next
-//         </button>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default FilteredReportPage;
-
-// ! improving the ui
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "next/navigation";
-// import { useSession } from "next-auth/react";
-// import { Modal, Checkbox, Spin, Tooltip, Empty } from "antd";
-// import {
-//   FilterOutlined,
-//   CheckCircleOutlined,
-//   SearchOutlined,
-// } from "@ant-design/icons";
-// import ChartTableComponent from "@/app/result/ChartTableComponent";
-
-// // Interfaces (keep existing interfaces from previous implementation)
-// interface Field {
-//   _id: string;
-//   name: string;
-//   type: {
-//     _id: string;
-//     name: string;
-//     description: string;
-//     exampleValue: string;
-//   };
-//   filtered: boolean;
-//   required: boolean;
-//   description: string;
-//   defaultValue: string;
-// }
-
-// interface DataItem {
-//   _id: string;
-//   field: Field;
-//   value: string;
-// }
-
-// interface Report {
-//   _id: string;
-//   name: string;
-//   description: string;
-//   start_date: string;
-//   end_date: string;
-//   fields: Field[];
-//   data: DataItem[];
-// }
-
-// interface SelectedItemsState {
-//   [fieldId: string]: Set<string>;
-// }
-
-// const FilteredReportPage: React.FC = () => {
-//   const { data: session } = useSession();
-//   const params = useParams();
-//   const { filterId } = params;
-
-//   // State Management
-//   const [report, setReport] = useState<Report | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const [showChartTable, setShowChartTable] = useState(false);
-//   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-
-//   // Filter States
-//   const [selectedItemsPerField, setSelectedItemsPerField] =
-//     useState<SelectedItemsState>({});
-//   const [selectedFilters, setSelectedFilters] = useState({});
-//   const [searchTerms, setSearchTerms] = useState<{ [fieldId: string]: string }>(
-//     {}
-//   );
-
-//   // Fetch Report Data
-//   useEffect(() => {
-//     const fetchReport = async () => {
-//       if (!filterId || !session?.accessToken) return;
-
-//       try {
-//         const response = await fetch(
-//           `${process.env.NEXT_PUBLIC_API_URL}/reports/${filterId}`,
-//           {
-//             method: "GET",
-//             headers: {
-//               Authorization: `Bearer ${session.accessToken}`,
-//               "Content-Type": "application/json",
-//             },
-//           }
-//         );
-
-//         if (!response.ok) {
-//           throw new Error(`Failed to fetch the report: ${response.statusText}`);
-//         }
-
-//         const data = await response.json();
-//         setReport(data);
-
-//         // Initialize filter states
-//         const initialSelectedState: SelectedItemsState = {};
-//         const initialSearchTerms: { [fieldId: string]: string } = {};
-
-//         data.fields
-//           .filter((field: Field) => field.filtered)
-//           .forEach((field: Field) => {
-//             initialSelectedState[field._id] = new Set();
-//             initialSearchTerms[field._id] = "";
-//           });
-
-//         setSelectedItemsPerField(initialSelectedState);
-//         setSearchTerms(initialSearchTerms);
-//       } catch (err: any) {
-//         setError(err.message);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchReport();
-//   }, [filterId, session]);
-
-//   // Grouped Data Items
-//   const groupedDataItems =
-//     report?.fields
-//       .filter((field) => field.filtered)
-//       .reduce((acc, field) => {
-//         const filteredItemsForField =
-//           report?.data
-//             .filter((dataItem) => dataItem.field._id === field._id)
-//             .map((dataItem) => dataItem.value) ?? [];
-
-//         acc[field._id] = {
-//           fieldName: field.name,
-//           values: new Set(filteredItemsForField),
-//         };
-
-//         return acc;
-//       }, {} as { [key: string]: { fieldName: string; values: Set<string> } }) ||
-//     {};
-
-//   // Handler Functions
-//   const handleSelectAll = (fieldId: string, items: string[]) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(items),
-//     }));
-//   };
-
-//   const handleDeselectAll = (fieldId: string) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(),
-//     }));
-//   };
-
-//   const handleItemChange = (fieldId: string, item: string) => {
-//     setSelectedItemsPerField((prev) => {
-//       const currentFieldSelections = new Set(prev[fieldId]);
-//       if (currentFieldSelections.has(item)) {
-//         currentFieldSelections.delete(item);
-//       } else {
-//         currentFieldSelections.add(item);
-//       }
-//       return {
-//         ...prev,
-//         [fieldId]: currentFieldSelections,
-//       };
-//     });
-//   };
-
-//   const handleSearchChange = (fieldId: string, searchTerm: string) => {
-//     setSearchTerms((prev) => ({
-//       ...prev,
-//       [fieldId]: searchTerm.toLowerCase(),
-//     }));
-//   };
-
-//   const applyFilters = () => {
-//     const filtersSelected = Object.entries(selectedItemsPerField).reduce(
-//       (acc, [fieldId, selectedValues]) => {
-//         const field = report?.fields.find((field) => field._id === fieldId);
-//         if (field && selectedValues.size > 0) {
-//           acc[field.name] = Array.from(selectedValues);
-//         }
-//         return acc;
-//       },
-//       {} as { [fieldName: string]: string[] }
-//     );
-
-//     // Only proceed if filters are selected
-//     if (Object.keys(filtersSelected).length > 0) {
-//       setSelectedFilters(filtersSelected);
-//       setShowChartTable(true);
-//     }
-//   };
-
-//   // Render Loading State
-//   if (loading) {
-//     return (
-//       <div className="w-full h-screen flex items-center justify-center">
-//         <Spin size="large">
-//           <div className="p-12">Loading report...</div>
-//         </Spin>
-//       </div>
-//     );
-//   }
-
-//   // Render Error State
-//   if (error) {
-//     return (
-//       <div className="w-full p-8 text-center">
-//         <div className="text-red-600 font-semibold mb-2">Error</div>
-//         <div>{error}</div>
-//       </div>
-//     );
-//   }
-
-//   // Render Chart Table if Filters are Selected
-//   if (showChartTable && report) {
-//     return (
-//       <ChartTableComponent report={report} selectedFilters={selectedFilters} />
-//     );
-//   }
-
-//   return (
-//     <div className="w-full h-screen flex">
-//       {/* Left Side Filter Launcher */}
-//       <div className="w-16 bg-[#2B5BA8] flex flex-col items-center pt-8">
-//         <Tooltip title="Open Filters" placement="right">
-//           <button
-//             onClick={() => setIsFilterModalVisible(true)}
-//             className="text-white p-2 rounded-full hover:bg-white/20 transition"
-//           >
-//             <FilterOutlined className="text-2xl" />
-//           </button>
-//         </Tooltip>
-//       </div>
-
-//       {/* Main Content Placeholder */}
-//       <div className="flex-1 bg-gray-100 flex items-center justify-center">
-//         <Empty
-//           description="Select filters to view report"
-//           className="text-gray-500"
-//         />
-//       </div>
-
-//       {/* Filter Modal */}
-//       <Modal
-//         title="Filter Reports"
-//         open={isFilterModalVisible}
-//         onCancel={() => setIsFilterModalVisible(false)}
-//         footer={[
-//           <button
-//             key="apply"
-//             onClick={() => {
-//               applyFilters();
-//               setIsFilterModalVisible(false);
-//             }}
-//             disabled={Object.values(selectedItemsPerField).every(
-//               (selections) => selections.size === 0
-//             )}
-//             className="
-//               w-full py-3 rounded
-//               bg-[#2B5BA8] text-white
-//               hover:bg-[#234a87]
-//               transition-colors
-//               disabled:opacity-50 disabled:cursor-not-allowed
-//             "
-//           >
-//             Apply Filters
-//           </button>,
-//         ]}
-//         width="80%"
-//         centered
-//       >
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//           {Object.entries(groupedDataItems).map(
-//             ([fieldId, { fieldName, values }]) => (
-//               <div key={fieldId} className="bg-white rounded-lg shadow-md p-4">
-//                 <div className="flex justify-between items-center mb-3">
-//                   <h3 className="text-lg font-semibold capitalize">
-//                     {fieldName}
-//                   </h3>
-//                   <div className="flex space-x-2">
-//                     <Tooltip title="Select All">
-//                       <button
-//                         onClick={() => handleSelectAll(fieldId, [...values])}
-//                         className="text-green-500 hover:bg-green-50 p-1 rounded"
-//                       >
-//                         <CheckCircleOutlined />
-//                       </button>
-//                     </Tooltip>
-//                   </div>
-//                 </div>
-
-//                 {/* Search Input */}
-//                 <div className="relative mb-3">
-//                   <input
-//                     type="text"
-//                     placeholder={`Search ${fieldName}`}
-//                     value={searchTerms[fieldId] || ""}
-//                     onChange={(e) =>
-//                       handleSearchChange(fieldId, e.target.value)
-//                     }
-//                     className="w-full p-2 border rounded"
-//                   />
-//                   <SearchOutlined className="absolute right-3 top-3 text-gray-500" />
-//                 </div>
-
-//                 {/* Selection Status */}
-//                 <div className="text-sm text-gray-500 mb-2">
-//                   Selected: {selectedItemsPerField[fieldId]?.size ?? 0} of{" "}
-//                   {values.size}
-//                 </div>
-
-//                 {/* Filtered Checkbox List */}
-//                 <div className="max-h-64 overflow-y-auto border rounded">
-//                   {[...values]
-//                     .filter((value) =>
-//                       value.toLowerCase().includes(searchTerms[fieldId] || "")
-//                     )
-//                     .map((value) => (
-//                       <Checkbox
-//                         key={value}
-//                         checked={selectedItemsPerField[fieldId]?.has(value)}
-//                         onChange={() => handleItemChange(fieldId, value)}
-//                         className="w-full p-2 hover:bg-gray-50"
-//                       >
-//                         {value}
-//                       </Checkbox>
-//                     ))}
-//                 </div>
-//               </div>
-//             )
-//           )}
-//         </div>
-//       </Modal>
-//     </div>
-//   );
-// };
-
-// export default FilteredReportPage;
-
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import { useParams, useRouter } from "next/navigation";
-// import {
-//   Layout,
-//   Menu,
-//   Button,
-//   Checkbox,
-//   Input,
-//   Spin,
-//   Drawer,
-//   Tag,
-//   Divider,
-// } from "antd";
-// import {
-//   FilterOutlined,
-//   CloseOutlined,
-//   CheckOutlined,
-//   ReloadOutlined,
-//   SearchOutlined,
-// } from "@ant-design/icons";
-// import { FaFilter } from "react-icons/fa";
-// import { useSession } from "next-auth/react";
-// import ChartTableComponent from "@/app/result/ChartTableComponent";
-// import StepsComponent from "../_components/StepsCompnent/StepsCompnent";
-
-// // Existing interfaces remain the same
-// interface Field {
-//   _id: string;
-//   name: string;
-//   type: {
-//     _id: string;
-//     name: string;
-//     description: string;
-//     exampleValue: string;
-//   };
-//   filtered: boolean;
-//   required: boolean;
-//   description: string;
-//   defaultValue: string;
-// }
-
-// interface DataItem {
-//   _id: string;
-//   field: Field;
-//   value: string;
-// }
-
-// interface Report {
-//   _id: string;
-//   name: string;
-//   description: string;
-//   start_date: string;
-//   end_date: string;
-//   fields: Field[];
-//   data: DataItem[];
-// }
-
-// interface SelectedItemsState {
-//   [fieldId: string]: Set<string>;
-// }
-
-// const { Sider, Content } = Layout;
-
-// const FilteredReportPage: React.FC = () => {
-//   const router = useRouter();
-//   const { data: session } = useSession();
-//   const params = useParams();
-//   const { filterId } = params;
-
-//   const [report, setReport] = useState<Report | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const [showChartTable, setShowChartTable] = useState(false);
-//   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-//   const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
-
-//   const [selectedItemsPerField, setSelectedItemsPerField] =
-//     useState<SelectedItemsState>({});
-//   const [selectedFilters, setSelectedFilters] = useState<{
-//     [key: string]: string[];
-//   }>({});
-
-//   // New state for search functionality
-//   const [searchTerms, setSearchTerms] = useState<{ [key: string]: string }>({});
-
-//   // Fetch report logic
-//   useEffect(() => {
-//     const fetchReport = async () => {
-//       try {
-//         const response = await fetch(
-//           `${process.env.NEXT_PUBLIC_API_URL}/reports/${filterId}`,
-//           {
-//             method: "GET",
-//             headers: {
-//               Authorization: `Bearer ${session?.accessToken}`,
-//               "Content-Type": "application/json",
-//             },
-//           }
-//         );
-
-//         if (!response.ok) {
-//           throw new Error(`Failed to fetch the report: ${response.statusText}`);
-//         }
-
-//         const data = await response.json();
-//         setReport(data);
-
-//         // Initialize selected items and search terms
-//         const initialSelectedState: SelectedItemsState = {};
-//         const initialSearchTerms: { [key: string]: string } = {};
-
-//         data.fields
-//           .filter((field: Field) => field.filtered)
-//           .forEach((field: Field) => {
-//             initialSelectedState[field._id] = new Set();
-//             initialSearchTerms[field._id] = "";
-//           });
-
-//         setSelectedItemsPerField(initialSelectedState);
-//         setSearchTerms(initialSearchTerms);
-//       } catch (err: any) {
-//         setError(err.message);
-//         if (
-//           err.message.includes("401") ||
-//           err.message.includes("Unauthorized")
-//         ) {
-//           router.push("/login");
-//         }
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (filterId && session) {
-//       fetchReport();
-//     }
-//   }, [filterId, session]);
-
-//   // Selection logic methods
-//   const handleSelectAll = (fieldId: string, items: string[]) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(items),
-//     }));
-//   };
-
-//   const handleDeselectAll = (fieldId: string) => {
-//     setSelectedItemsPerField((prev) => ({
-//       ...prev,
-//       [fieldId]: new Set(),
-//     }));
-//   };
-
-//   const handleItemChange = (fieldId: string, item: string) => {
-//     setSelectedItemsPerField((prev) => {
-//       const currentFieldSelections = new Set(prev[fieldId]);
-//       currentFieldSelections.has(item)
-//         ? currentFieldSelections.delete(item)
-//         : currentFieldSelections.add(item);
-
-//       return {
-//         ...prev,
-//         [fieldId]: currentFieldSelections,
-//       };
-//     });
-//   };
-
-//   // Prepare grouped data with search functionality
-//   const prepareGroupedDataItems = () => {
-//     const filteredFields =
-//       report?.fields.filter((field) => field.filtered) ?? [];
-
-//     return filteredFields.reduce((acc, field) => {
-//       const filteredItemsForField =
-//         report?.data
-//           .filter((dataItem) => dataItem.field._id === field._id)
-//           .map((dataItem) => dataItem.value) ?? [];
-
-//       const searchTerm = searchTerms[field._id]?.toLowerCase() || "";
-//       const filteredValues = filteredItemsForField.filter((value) =>
-//         value.toLowerCase().includes(searchTerm)
-//       );
-
-//       acc[field._id] = {
-//         fieldName: field.name,
-//         values: new Set(filteredValues),
-//       };
-
-//       return acc;
-//     }, {} as { [key: string]: { fieldName: string; values: Set<string> } });
-//   };
-
-//   const handleNextClick = () => {
-//     const filtersSelected = Object.entries(selectedItemsPerField).reduce(
-//       (acc, [fieldId, selectedValues]) => {
-//         const field = report?.fields.find((field) => field._id === fieldId);
-//         if (field) {
-//           acc[field.name] = Array.from(selectedValues);
-//         }
-//         return acc;
-//       },
-//       {} as { [fieldName: string]: string[] }
-//     );
-
-//     setSelectedFilters(filtersSelected);
-//     setShowChartTable(true);
-//   };
-
-//   const clearAllFilters = () => {
-//     const clearedState: SelectedItemsState = {};
-//     Object.keys(selectedItemsPerField).forEach((fieldId) => {
-//       clearedState[fieldId] = new Set();
-//     });
-//     setSelectedItemsPerField(clearedState);
-//     setSelectedFilters({});
-//   };
-
-//   // Render loading state
-//   if (loading) {
-//     return (
-//       <div className="flex items-center justify-center h-screen">
-//         <Spin size="large" spinning={true}>
-//           <div className="text-center">
-//             <ReloadOutlined spin className="text-4xl mb-4" />
-//             <p>Loading report...</p>
-//           </div>
-//         </Spin>
-//       </div>
-//     );
-//   }
-
-//   // Render error state
-//   if (error) {
-//     return (
-//       <div className="w-full p-8 text-center">
-//         <div className="text-red-600 font-semibold mb-2">Error</div>
-//         <div>{error}</div>
-//       </div>
-//     );
-//   }
-
-//   // Render chart table if filters are applied
-//   if (showChartTable && report) {
-//     return (
-//       <ChartTableComponent report={report} selectedFilters={selectedFilters} />
-//     );
-//   }
-
-//   // Main render with Layout
-//   return (
-//     <Layout className="min-h-screen">
-//       {/* Sidebar Filters */}
-//       <Sider
-//         theme="light"
-//         collapsible
-//         collapsed={!isSidebarOpen}
-//         onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-//         width={350}
-//         className="overflow-auto"
-//       >
-//         <div className="p-4">
-//           <div className="flex justify-between items-center mb-4">
-//             <h2 className="text-xl font-bold">Filters</h2>
-//             <Button
-//               type="text"
-//               icon={<CloseOutlined />}
-//               onClick={() => setIsSidebarOpen(false)}
-//             />
-//           </div>
-
-//           <Divider />
-
-//           {Object.entries(prepareGroupedDataItems()).map(
-//             ([fieldId, { fieldName, values }]) => (
-//               <div key={fieldId} className="mb-6">
-//                 <h3 className="text-md font-semibold mb-2 capitalize">
-//                   {fieldName}
-//                 </h3>
-
-//                 <Input
-//                   prefix={<SearchOutlined />}
-//                   placeholder={`Search ${fieldName}`}
-//                   value={searchTerms[fieldId] || ""}
-//                   onChange={(e) =>
-//                     setSearchTerms((prev) => ({
-//                       ...prev,
-//                       [fieldId]: e.target.value,
-//                     }))
-//                   }
-//                   className="mb-2"
-//                 />
-
-//                 <div className="flex justify-between mb-2">
-//                   <Button
-//                     size="small"
-//                     onClick={() => handleSelectAll(fieldId, [...values])}
-//                   >
-//                     Select All
-//                   </Button>
-//                   <Button
-//                     size="small"
-//                     onClick={() => handleDeselectAll(fieldId)}
-//                   >
-//                     Clear
-//                   </Button>
-//                 </div>
-
-//                 <div
-//                   style={{
-//                     maxHeight: "200px",
-//                     overflowY: "auto",
-//                     border: "1px solid #d9d9d9",
-//                     borderRadius: "4px",
-//                     padding: "8px",
-//                   }}
-//                 >
-//                   {[...values].map((value) => (
-//                     <div key={value} className="flex items-center mb-1">
-//                       <Checkbox
-//                         checked={selectedItemsPerField[fieldId]?.has(value)}
-//                         onChange={() => handleItemChange(fieldId, value)}
-//                       >
-//                         {value}
-//                       </Checkbox>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             )
-//           )}
-
-//           <div className="mt-4">
-//             <Button
-//               type="primary"
-//               block
-//               onClick={handleNextClick}
-//               disabled={Object.values(selectedItemsPerField).every(
-//                 (set) => set.size === 0
-//               )}
-//             >
-//               Apply Filters
-//               <CheckOutlined />
-//             </Button>
-//           </div>
-//         </div>
-//       </Sider>
-
-//       {/* Main Content Area */}
-//       <Layout>
-//         <Content className="p-4 bg-gray-100">
-//           <StepsComponent currentStep={1} />
-
-//           {!isSidebarOpen && (
-//             <Button
-//               type="default"
-//               className="mb-4 flex items-center"
-//               onClick={() => setIsSidebarOpen(true)}
-//             >
-//               <FaFilter className="mr-2" />
-//               Open Filters
-//             </Button>
-//           )}
-
-//           {/* Filter Drawer for Mobile/Compact View */}
-//           <Drawer
-//             title="Applied Filters"
-//             placement="right"
-//             closable={true}
-//             onClose={() => setIsFilterDrawerVisible(false)}
-//             open={isFilterDrawerVisible}
-//             width={350}
-//           >
-//             {Object.entries(selectedFilters).map(([fieldName, values]) => (
-//               <div key={fieldName} className="mb-4">
-//                 <h4 className="text-sm font-semibold capitalize mb-2">
-//                   {fieldName}
-//                 </h4>
-//                 <div className="flex flex-wrap gap-2">
-//                   {values.map((value) => (
-//                     <Tag key={value} color="processing">
-//                       {value}
-//                     </Tag>
-//                   ))}
-//                 </div>
-//               </div>
-//             ))}
-
-//             {Object.keys(selectedFilters).length > 0 && (
-//               <Button type="danger" block onClick={clearAllFilters}>
-//                 Clear All Filters
-//               </Button>
-//             )}
-//           </Drawer>
-
-//           {/* Content placeholder or results */}
-//           <div className="bg-white rounded-lg p-6 shadow-md">
-//             <h1 className="text-2xl font-bold mb-4">
-//               Reports with Filtered Fields
-//             </h1>
-
-//             {Object.keys(prepareGroupedDataItems()).length === 0 ? (
-//               <p className="text-gray-500">
-//                 No reports found with filtered fields.
-//               </p>
-//             ) : (
-//               <p>Select filters from the sidebar to view and apply filters.</p>
-//             )}
-//           </div>
-//         </Content>
-//       </Layout>
-//     </Layout>
-//   );
-// };
-
-// export default FilteredReportPage;
+//!improved onw
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Spin, Empty, Checkbox, Tooltip, Input, Collapse, Tag } from "antd";
+import {
+  Spin,
+  Checkbox,
+  Tooltip,
+  Input,
+  Collapse,
+  Tag,
+  Select,
+  Modal,
+  Button,
+} from "antd";
 import {
   RightOutlined,
   LeftOutlined,
   SearchOutlined,
   CaretDownOutlined,
+  ExpandOutlined,
 } from "@ant-design/icons";
 import ChartTableComponent from "@/app/result/ChartTableComponent";
 
 const { Panel } = Collapse;
+const { Option } = Select;
 
-// Existing interfaces from the previous implementation
+// Define comprehensive interfaces
+interface Department {
+  _id: string;
+  name: string;
+  category: Category[];
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  subcategory: SubCategory[];
+}
+
+interface SubCategory {
+  _id: string;
+  name: string;
+  report: Report[];
+}
+
+interface Report {
+  _id: string;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  fields: Field[];
+  data: DataItem[];
+  status: string;
+}
+
 interface Field {
   _id: string;
   name: string;
@@ -1108,16 +79,6 @@ interface DataItem {
   value: string;
 }
 
-interface Report {
-  _id: string;
-  name: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  fields: Field[];
-  data: DataItem[];
-}
-
 interface SelectedItemsState {
   [fieldId: string]: {
     type: "discrete";
@@ -1127,11 +88,24 @@ interface SelectedItemsState {
 
 const FilteredReportPage: React.FC = () => {
   const { data: session } = useSession();
-  const params = useParams();
-  const { filterId } = params;
 
-  // State Management
-  const [report, setReport] = useState<Report | null>(null);
+  console.log("session: ", session);
+
+  // Hierarchical Selection States
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    null
+  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(
+    null
+  );
+  const [availableReports, setAvailableReports] = useState<Report[]>([]);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+
+  // Existing Component States
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChartTable, setShowChartTable] = useState(false);
@@ -1145,125 +119,148 @@ const FilteredReportPage: React.FC = () => {
     {}
   );
 
-  // Fetch Report Data
-  useEffect(() => {
-    const fetchReport = async () => {
-      if (!filterId || !session?.accessToken) return;
+  // New states for modal and advanced filtering
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(true);
+  const [currentFilterField, setCurrentFilterField] = useState<{
+    fieldId: string;
+    fieldName: string;
+    values: string[];
+  } | null>(null);
 
+  const [columnsOrder, setColumnsOrder] = useState<string[]>([]);
+
+  // Fetch Hierarchical Data
+  useEffect(() => {
+    const fetchHierarchicalData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/reports/${filterId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${session.accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
+          `${process.env.NEXT_PUBLIC_API_URL}/departments`
         );
-
         if (!response.ok) {
-          throw new Error(`Failed to fetch the report: ${response.statusText}`);
+          throw new Error("Network response was not ok");
         }
 
-        const data = await response.json();
-        setReport(data);
-
-        // Initialize filter states with enhanced logic
-        const initialSelectedState: SelectedItemsState = {};
-        const initialSearchTerms: { [fieldId: string]: string } = {};
-
-        data.fields
-          .filter((field: Field) => field.filtered)
-          .forEach((field: Field) => {
-            // Get unique values for the field
-            const fieldValues = Array.from(
-              new Set(
-                data.data
-                  .filter(
-                    (dataItem: DataItem) => dataItem.field._id === field._id
-                  )
-                  .map((dataItem: DataItem) => dataItem.value)
-              )
-            );
-
-            initialSelectedState[field._id] = {
-              type: "discrete",
-              selectedValues: new Set(),
-            };
-
-            initialSearchTerms[field._id] = "";
-          });
-
-        setSelectedItemsPerField(initialSelectedState);
-        setSearchTerms(initialSearchTerms);
+        const data: Department[] = await response.json();
+        setDepartments(data);
+        setLoading(false);
       } catch (err: any) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchReport();
-  }, [filterId, session]);
+    fetchHierarchicalData();
+  }, []);
 
-  // Grouped Data Items with Enhanced Processing
-  const groupedDataItems = useMemo(() => {
-    if (!report) return {};
-
-    return (
-      report.fields
-        .filter((field) => field.filtered)
-        .reduce(
-          (acc, field) => {
-            const filteredItemsForField = report.data
-              .filter((dataItem) => dataItem.field._id === field._id)
-              .map((dataItem) => dataItem.value);
-
-            // Always treat as discrete, but convert to proper type if numeric
-            const numericValues = filteredItemsForField
-              .map(Number)
-              .filter((v) => !isNaN(v));
-
-            acc[field._id] = {
-              fieldName: field.name,
-              type:
-                numericValues.length === filteredItemsForField.length
-                  ? "numeric"
-                  : "discrete",
-              values: Array.from(
-                new Set(
-                  numericValues.length === filteredItemsForField.length
-                    ? numericValues.map(String) // Convert numeric to string
-                    : filteredItemsForField
-                )
-              ),
-            };
-
-            return acc;
-          },
-          {} as {
-            [key: string]: {
-              fieldName: string;
-              type: "numeric" | "discrete";
-              values: string[];
-            };
-          }
-        ) || {}
-    );
-  }, [report]);
-
-  // Handler Functions
-  const handleDiscreteSelectAll = (fieldId: string, items: string[]) => {
-    setSelectedItemsPerField((prev) => ({
-      ...prev,
-      [fieldId]: {
-        ...prev[fieldId],
-        selectedValues: new Set(items),
-      },
-    }));
+  // Handle Department Selection
+  const handleDepartmentSelect = (departmentId: string) => {
+    const selectedDept = departments.find((dept) => dept._id === departmentId);
+    if (selectedDept) {
+      setSelectedDepartment(departmentId);
+      setCategories(selectedDept.category);
+      // Reset subsequent selections
+      setSelectedCategory(null);
+      setSelectedSubCategory(null);
+      setAvailableReports([]);
+      setSelectedReport(null);
+    }
   };
 
+  // Handle Category Selection
+  const handleCategorySelect = (categoryId: string) => {
+    const selectedCat = categories.find((cat) => cat._id === categoryId);
+    if (selectedCat) {
+      setSelectedCategory(categoryId);
+      setSubCategories(selectedCat.subcategory);
+      // Reset subsequent selections
+      setSelectedSubCategory(null);
+      setAvailableReports([]);
+      setSelectedReport(null);
+    }
+  };
+
+  // Handle SubCategory Selection
+  const handleSubCategorySelect = (subCategoryId: string) => {
+    const selectedSubCat = subCategories.find(
+      (subCat) => subCat._id === subCategoryId
+    );
+    if (selectedSubCat) {
+      setSelectedSubCategory(subCategoryId);
+      // Filter published reports for this subcategory
+      const reports = selectedSubCat.report.filter(
+        (report) => report.status === "published"
+      );
+      setAvailableReports(reports);
+      // Reset report selection
+      setSelectedReport(null);
+    }
+  };
+
+  // Handle Report Selection
+  const handleReportSelect = async (reportId: string) => {
+    if (!session?.accessToken) {
+      setError("Authentication required");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/reports/${reportId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch the report: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("data: ", data);
+      setSelectedReport(data);
+
+      // Initialize filter states
+      const initialSelectedState: SelectedItemsState = {};
+      const initialSearchTerms: { [fieldId: string]: string } = {};
+
+      data.fields
+        .filter((field: Field) => field.filtered)
+        .forEach((field: Field) => {
+          const fieldValues = Array.from(
+            new Set(
+              data.data
+                .filter(
+                  (dataItem: DataItem) => dataItem.field._id === field._id
+                )
+                .map((dataItem: DataItem) => dataItem.value)
+            )
+          );
+
+          initialSelectedState[field._id] = {
+            type: "discrete",
+            selectedValues: new Set(),
+          };
+
+          initialSearchTerms[field._id] = "";
+        });
+
+      setSelectedItemsPerField(initialSelectedState);
+      setSearchTerms(initialSearchTerms);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  console.log("selectedReport: ", selectedReport);
+
+  const handleColumnsOrder = (order: string[]) => {
+    console.log("order: ", order);
+    setColumnsOrder(order);
+  };
   const handleDiscreteItemChange = (fieldId: string, item: string) => {
     setSelectedItemsPerField((prev) => {
       const currentState = prev[fieldId];
@@ -1292,28 +289,198 @@ const FilteredReportPage: React.FC = () => {
     }));
   };
 
-  const applyFilters = () => {
-    const filtersSelected = Object.entries(selectedItemsPerField).reduce(
-      (acc, [fieldId, selectedFilter]) => {
-        const field = report?.fields.find((f) => f._id === fieldId);
-        if (!field) return acc;
-
-        if (
-          selectedFilter.selectedValues &&
-          selectedFilter.selectedValues.size > 0
-        ) {
-          acc[field.name] = Array.from(selectedFilter.selectedValues);
-        }
-
-        return acc;
+  const handleDiscreteSelectAll = (fieldId: string, items: string[]) => {
+    setSelectedItemsPerField((prev) => ({
+      ...prev,
+      [fieldId]: {
+        ...prev[fieldId],
+        selectedValues: new Set(items),
       },
-      {} as { [fieldName: string]: string[] }
+    }));
+  };
+
+  // Grouped Data Items Processing (Similar to previous implementation)
+  const groupedDataItems = useMemo(() => {
+    if (!selectedReport) return {};
+
+    return (
+      selectedReport.fields
+        .filter((field) => field.filtered)
+        .reduce(
+          (acc, field) => {
+            const filteredItemsForField = selectedReport.data
+              .filter((dataItem) => dataItem.field._id === field._id)
+              .map((dataItem) => dataItem.value);
+
+            const numericValues = filteredItemsForField
+              .map(Number)
+              .filter((v) => !isNaN(v));
+
+            acc[field._id] = {
+              fieldName: field.name,
+              type:
+                numericValues.length === filteredItemsForField.length
+                  ? "numeric"
+                  : "discrete",
+              values: Array.from(
+                new Set(
+                  numericValues.length === filteredItemsForField.length
+                    ? numericValues.map(String)
+                    : filteredItemsForField
+                )
+              ),
+            };
+
+            return acc;
+          },
+          {} as {
+            [key: string]: {
+              fieldName: string;
+              type: "numeric" | "discrete";
+              values: string[];
+            };
+          }
+        ) || {}
+    );
+  }, [selectedReport]);
+
+  // Enhanced Dropdown Component with Alphabetical Sorting and Searching
+  const EnhancedHierarchicalDropdown = ({
+    items,
+    selectedItems,
+    onSelect,
+    placeholder,
+    disabled = false,
+    mode = "single",
+  }: {
+    items: Array<{ _id: string; name: string }>;
+    selectedItems: string[];
+    onSelect: (selectedIds: string[]) => void;
+    placeholder: string;
+    disabled?: boolean;
+    mode?: "single" | "multiple";
+  }) => {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [open, setOpen] = useState(false);
+
+    // Alphabetical sorting and filtering
+    const processedItems = useMemo(() => {
+      const sortedItems = items
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .filter((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      return sortedItems;
+    }, [items, searchTerm]);
+
+    return (
+      <Select
+        mode={mode}
+        style={{ width: "100%" }}
+        placeholder={placeholder}
+        disabled={disabled}
+        open={open}
+        onDropdownVisibleChange={(visible) => setOpen(visible)}
+        value={selectedItems}
+        onChange={onSelect}
+        dropdownRender={(menu) => (
+          <div>
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ margin: "8px 16px", width: "calc(100% - 32px)" }}
+            />
+            {menu}
+          </div>
+        )}
+      >
+        {processedItems.map((item) => (
+          <Option key={item._id} value={item._id}>
+            {mode === "multiple" && (
+              <Checkbox
+                checked={selectedItems.includes(item._id)}
+                onChange={() => {}}
+                style={{ marginRight: 8 }}
+              />
+            )}
+            {item.name}
+          </Option>
+        ))}
+      </Select>
+    );
+  };
+
+  // Expanded Filter Modal
+  const FieldFilterModal = ({
+    fieldId,
+    fieldName,
+    values,
+    onApply,
+  }: {
+    fieldId: string;
+    fieldName: string;
+    values: string[];
+    onApply: (selectedValues: string[]) => void;
+  }) => {
+    const [localSearch, setLocalSearch] = useState("");
+    const [localSelectedValues, setLocalSelectedValues] = useState<string[]>(
+      []
     );
 
-    if (Object.keys(filtersSelected).length > 0) {
-      setSelectedFilters(filtersSelected);
-      setShowChartTable(true);
-    }
+    const filteredValues = useMemo(
+      () =>
+        values
+          .sort((a, b) => a.localeCompare(b))
+          .filter((value) =>
+            value.toLowerCase().includes(localSearch.toLowerCase())
+          ),
+      [values, localSearch]
+    );
+
+    const handleApply = () => {
+      onApply(localSelectedValues);
+    };
+
+    return (
+      <Modal
+        title={`Expand Filter: ${fieldName}`}
+        open={true}
+        onCancel={() => onApply([])}
+        footer={[
+          <Button key="cancel" onClick={() => onApply([])}>
+            Cancel
+          </Button>,
+          <Button key="apply" type="primary" onClick={handleApply}>
+            Apply Filters
+          </Button>,
+        ]}
+        width="80%"
+        style={{ maxHeight: "90vh", overflow: "auto" }}
+      >
+        <Input
+          prefix={<SearchOutlined />}
+          placeholder={`Search ${fieldName}`}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
+          style={{ marginBottom: 16 }}
+        />
+        <Checkbox.Group
+          style={{ width: "100%" }}
+          value={localSelectedValues}
+          onChange={(checkedValues) =>
+            setLocalSelectedValues(checkedValues as string[])
+          }
+        >
+          {filteredValues.map((value) => (
+            <div key={value} style={{ margin: "8px 0" }}>
+              <Checkbox value={value}>{value}</Checkbox>
+            </div>
+          ))}
+        </Checkbox.Group>
+      </Modal>
+    );
   };
 
   // Render Loading State
@@ -1321,181 +488,14 @@ const FilteredReportPage: React.FC = () => {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <Spin size="large">
-          <div className="p-12">Loading report...</div>
+          <div className="p-12">Loading data...</div>
         </Spin>
       </div>
     );
   }
 
-  // Render Error State
-  if (error) {
-    return (
-      <div className="w-full p-8 text-center">
-        <div className="text-red-600 font-semibold mb-2">Error</div>
-        <div>{error}</div>
-      </div>
-    );
-  }
-
-  // Render Chart Table if Filters are Selected
-  // if (showChartTable && report) {
-  //   return (
-  //     <ChartTableComponent report={report} selectedFilters={selectedFilters} />
-  //   );
-  // }
-
-  // return (
-  //   <div className="w-full h-screen flex">
-  //     {/* Collapsible Sidebar */}
-  //     <div
-  //       className={`
-  //         ${isSidebarOpen ? "w-96" : "w-16"}
-  //         bg-[##F4F7F8]
-  //         transition-all
-  //         duration-300
-  //         ease-in-out
-  //         overflow-hidden
-  //       `}
-  //     >
-  //       {/* Sidebar Toggle */}
-  //       <div className="flex bg-blue justify-between items-center p-4">
-  //         <Tooltip
-  //           title={isSidebarOpen ? "Collapse Filters" : "Expand Filters"}
-  //         >
-  //           <button
-  //             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-  //             className="text-white p-2 rounded-full hover:bg-white/20 transition"
-  //           >
-  //             {isSidebarOpen ? <LeftOutlined /> : <RightOutlined />}
-  //           </button>
-  //         </Tooltip>
-  //       </div>
-
-  //       {/* Filter Content */}
-  //       {isSidebarOpen && (
-  //         <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-72px)]">
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700">
-  //               Filters
-  //             </label>
-  //           </div>
-  //           <Collapse accordion defaultActiveKey={[]}>
-  //             {Object.entries(groupedDataItems).map(
-  //               ([fieldId, { fieldName, type, values }]) => (
-  //                 <Panel header={fieldName} key={fieldId}>
-  //                   <div>
-  //                     <div className="flex justify-between items-center mb-3">
-  //                       {values.length > 0 && (
-  //                         <Checkbox
-  //                           indeterminate={
-  //                             selectedItemsPerField[fieldId]?.selectedValues
-  //                               .size > 0 &&
-  //                             selectedItemsPerField[fieldId]?.selectedValues
-  //                               .size !== values.length
-  //                           }
-  //                           checked={
-  //                             selectedItemsPerField[fieldId]?.selectedValues
-  //                               .size === values.length
-  //                           }
-  //                           onChange={() =>
-  //                             handleDiscreteSelectAll(
-  //                               fieldId,
-  //                               selectedItemsPerField[fieldId]?.selectedValues
-  //                                 .size === values.length
-  //                                 ? []
-  //                                 : values
-  //                             )
-  //                           }
-  //                         >
-  //                           Select All
-  //                         </Checkbox>
-  //                       )}
-  //                     </div>
-
-  //                     {/* Search Input */}
-  //                     <div className="relative mb-3">
-  //                       <Input
-  //                         placeholder={`Search ${fieldName}`}
-  //                         value={searchTerms[fieldId] || ""}
-  //                         onChange={(e) =>
-  //                           handleSearchChange(fieldId, e.target.value)
-  //                         }
-  //                         prefix={<SearchOutlined className="text-gray-500" />}
-  //                       />
-  //                     </div>
-
-  //                     <div className="max-h-64 overflow-y-auto border rounded">
-  //                       {values
-  //                         .filter((value) =>
-  //                           value
-  //                             .toLowerCase()
-  //                             .includes(searchTerms[fieldId] || "")
-  //                         )
-  //                         .map((value) => (
-  //                           <Checkbox
-  //                             key={value}
-  //                             checked={selectedItemsPerField[
-  //                               fieldId
-  //                             ]?.selectedValues?.has(value)}
-  //                             onChange={() =>
-  //                               handleDiscreteItemChange(fieldId, value)
-  //                             }
-  //                             className="w-full p-2 hover:bg-gray-50"
-  //                           >
-  //                             {value}
-  //                           </Checkbox>
-  //                         ))}
-  //                     </div>
-  //                   </div>
-  //                 </Panel>
-  //               )
-  //             )}
-  //           </Collapse>
-
-  //           {/* Apply Filters Button */}
-  //           <button
-  //             onClick={applyFilters}
-  //             disabled={Object.values(selectedItemsPerField).every(
-  //               (selections) => selections.selectedValues.size === 0
-  //             )}
-  //             className="
-  //               w-full py-3 rounded mt-4
-  //               bg-[#2B5BA8] text-white
-  //               hover:bg-[#234a87]
-  //               transition-colors
-  //               disabled:opacity-50 disabled:cursor-not-allowed
-  //             "
-  //           >
-  //             Apply Filters
-  //           </button>
-  //         </div>
-  //       )}
-  //     </div>
-
-  //     {/* Main Content Placeholder */}
-  //     <div className="flex-1 bg-gray-100 flex items-center justify-center">
-  //       <Empty
-  //         description="Select filters to view report"
-  //         className="text-gray-500"
-  //       />
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <div className="w-full h-screen flex">
-      {/* Collapsible Sidebar */}
-      {/* <div
-        className={`
-        ${isSidebarOpen ? "w-80" : "w-20"} 
-        bg-gray-50 shadow-md 
-        transition-all 
-        duration-300 
-        ease-in-out 
-        overflow-hidden
-        border-r
-      `}
-      > */}
       {/* Collapsible Sidebar */}
       <div
         className={`transition-all duration-300 ease-in-out ${
@@ -1517,224 +517,183 @@ const FilteredReportPage: React.FC = () => {
             </button>
           </Tooltip>
         </div>
+
         {/* Filter Content */}
         {isSidebarOpen && (
           <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-72px)]">
-            {/* Filters Header */}
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
-                Filters
-              </h3>
+            {/* Enhanced Hierarchical Selection Dropdowns */}
+            <div className="space-y-4">
+              {/* Enhanced Hierarchical Dropdowns */}
+              <EnhancedHierarchicalDropdown
+                items={departments}
+                selectedItems={selectedDepartment ? [selectedDepartment] : []}
+                onSelect={(selectedIds) =>
+                  handleDepartmentSelect(selectedIds[0])
+                }
+                placeholder="Select Department"
+                mode="multiple"
+              />
+
+              <EnhancedHierarchicalDropdown
+                items={categories}
+                selectedItems={selectedCategory ? [selectedCategory] : []}
+                onSelect={(selectedIds) => handleCategorySelect(selectedIds[0])}
+                placeholder="Select Category"
+                disabled={!selectedDepartment}
+                mode="multiple"
+              />
+              {/* Subcategory Dropdown */}
+
+              <EnhancedHierarchicalDropdown
+                items={subCategories}
+                selectedItems={selectedSubCategory ? [selectedSubCategory] : []}
+                onSelect={(selectedIds) =>
+                  handleSubCategorySelect(selectedIds[0])
+                }
+                placeholder="Select Subcategory"
+                disabled={!selectedDepartment}
+                mode="multiple"
+              />
+
+              {/* Available Reports Dropdown */}
+              <EnhancedHierarchicalDropdown
+                items={availableReports}
+                selectedItems={selectedReport ? [selectedReport] : []}
+                onSelect={(selectedIds) => handleReportSelect(selectedIds[0])}
+                placeholder="Select Report"
+                disabled={!selectedDepartment}
+                mode="multiple"
+              />
             </div>
-            {/* Filters Section */}
 
-            {/* <Collapse
-              accordion
-              defaultActiveKey={[]}
-              expandIcon={({ isActive }) => (
-                <CaretDownOutlined rotate={isActive ? 180 : 0} />
-              )}
-              className="bg-white border border-gray-200 rounded-lg"
-            >
-              {Object.entries(groupedDataItems).map(
-                ([fieldId, { fieldName, type, values }]) => (
-                  <Panel
-                    header={
-                      <div className="text-gray-700 font-medium flex items-center">
-                        <span>{fieldName}</span>
-                        <Tag color="blue" className="ml-2 text-xs">
-                          {type}
-                        </Tag>
-                      </div>
-                    }
-                    key={fieldId}
-                    className="text-gray-700"
-                  >
-                    <div>
-                      <div className="flex justify-between items-center mb-3">
-                        {values.length > 0 && (
-                          <Checkbox
-                            indeterminate={
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size > 0 &&
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size !== values.length
-                            }
-                            checked={
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size === values.length
-                            }
-                            onChange={() =>
-                              handleDiscreteSelectAll(
-                                fieldId,
+            {/* Existing Filters Section (only show if a report is selected) */}
+
+            {selectedReport && (
+              <Collapse
+                accordion
+                defaultActiveKey={[]}
+                expandIcon={({ isActive }) => (
+                  <CaretDownOutlined rotate={isActive ? 180 : 0} />
+                )}
+              >
+                {Object.entries(groupedDataItems).map(
+                  ([fieldId, { fieldName, type, values }]) => (
+                    <Panel
+                      header={
+                        <div className="flex justify-between items-center">
+                          <span>{fieldName}</span>
+                          <Tooltip title="Expand Filter">
+                            <Button
+                              icon={<ExpandOutlined />}
+                              type="text"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentFilterField({
+                                  fieldId,
+                                  fieldName,
+                                  values,
+                                });
+                                setIsFilterModalVisible(true);
+                              }}
+                            />
+                          </Tooltip>
+                        </div>
+                      }
+                      key={fieldId}
+                      className="text-gray-700"
+                    >
+                      <div>
+                        {/* Select All Checkbox  */}
+                        <div className="flex justify-between items-center mb-3">
+                          {values.length > 0 && (
+                            <Checkbox
+                              indeterminate={
+                                selectedItemsPerField[fieldId]?.selectedValues
+                                  .size > 0 &&
+                                selectedItemsPerField[fieldId]?.selectedValues
+                                  .size !== values.length
+                              }
+                              checked={
                                 selectedItemsPerField[fieldId]?.selectedValues
                                   .size === values.length
-                                  ? []
-                                  : values
-                              )
-                            }
-                          >
-                            Select All
-                          </Checkbox>
-                        )}
-                      </div>
-
-                      <div className="relative mb-3">
-                        <Input
-                          placeholder={`Search ${fieldName}`}
-                          value={searchTerms[fieldId] || ""}
-                          onChange={(e) =>
-                            handleSearchChange(fieldId, e.target.value)
-                          }
-                          prefix={<SearchOutlined className="text-gray-400" />}
-                          className="rounded-md"
-                        />
-                      </div>
-
-                      <div className="max-h-64 overflow-y-auto border border-gray-200 rounded">
-                        {values
-                          .filter((value) =>
-                            value
-                              .toLowerCase()
-                              .includes(
-                                (searchTerms[fieldId] || "").toLowerCase()
-                              )
-                          )
-                          .map((value) => (
-                            <Checkbox
-                              key={value}
-                              checked={selectedItemsPerField[
-                                fieldId
-                              ]?.selectedValues?.has(value)}
-                              onChange={() =>
-                                handleDiscreteItemChange(fieldId, value)
                               }
-                              className="w-full p-2 hover:bg-gray-100 flex items-center"
-                            >
-                              <span className="text-sm text-gray-600">
-                                {value}
-                              </span>
-                            </Checkbox>
-                          ))}
-                      </div>
-                    </div>
-                  </Panel>
-                )
-              )}
-            </Collapse> 
-            */}
-
-            <Collapse
-              accordion
-              defaultActiveKey={[]}
-              expandIcon={({ isActive }) => (
-                <CaretDownOutlined rotate={isActive ? 180 : 0} />
-              )}
-              className="bg-white border border-gray-200 rounded-lg"
-            >
-              {Object.entries(groupedDataItems).map(
-                ([fieldId, { fieldName, type, values }]) => (
-                  <Panel
-                    header={
-                      <div className="text-gray-700 font-medium flex items-center">
-                        <span>{fieldName}</span>
-                        <Tag color="blue" className="ml-2 text-xs">
-                          {type}
-                        </Tag>
-                      </div>
-                    }
-                    key={fieldId}
-                    className="text-gray-700"
-                  >
-                    <div>
-                      {/* Select All Checkbox */}
-                      <div className="flex justify-between items-center mb-3">
-                        {values.length > 0 && (
-                          <Checkbox
-                            indeterminate={
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size > 0 &&
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size !== values.length
-                            }
-                            checked={
-                              selectedItemsPerField[fieldId]?.selectedValues
-                                .size === values.length
-                            }
-                            onChange={() =>
-                              handleDiscreteSelectAll(
-                                fieldId,
-                                selectedItemsPerField[fieldId]?.selectedValues
-                                  .size === values.length
-                                  ? []
-                                  : values
-                              )
-                            }
-                          >
-                            Select All
-                          </Checkbox>
-                        )}
-                      </div>
-
-                      {/* Search Input */}
-                      <div className="relative mb-3">
-                        <Input
-                          placeholder={`Search ${fieldName}`}
-                          value={searchTerms[fieldId] || ""}
-                          onChange={(e) =>
-                            handleSearchChange(fieldId, e.target.value)
-                          }
-                          prefix={<SearchOutlined className="text-gray-400" />}
-                          className="rounded-md"
-                        />
-                      </div>
-
-                      {/* Checkbox Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-2">
-                        {values
-                          .filter((value) =>
-                            value
-                              .toLowerCase()
-                              .includes(
-                                (searchTerms[fieldId] || "").toLowerCase()
-                              )
-                          )
-                          .map((value) => (
-                            <Checkbox
-                              key={value}
-                              checked={selectedItemsPerField[
-                                fieldId
-                              ]?.selectedValues?.has(value)}
                               onChange={() =>
-                                handleDiscreteItemChange(fieldId, value)
+                                handleDiscreteSelectAll(
+                                  fieldId,
+                                  selectedItemsPerField[fieldId]?.selectedValues
+                                    .size === values.length
+                                    ? []
+                                    : values
+                                )
                               }
-                              className="p-2 hover:bg-gray-100 flex items-center"
                             >
-                              <span className="text-sm text-gray-600">
-                                {value}
-                              </span>
+                              Select All
                             </Checkbox>
-                          ))}
+                          )}
+                        </div>
+
+                        {/* Search Input  */}
+                        <div className="relative mb-3">
+                          <Input
+                            placeholder={`Search ${fieldName}`}
+                            value={searchTerms[fieldId] || ""}
+                            onChange={(e) =>
+                              handleSearchChange(fieldId, e.target.value)
+                            }
+                            prefix={
+                              <SearchOutlined className="text-gray-400" />
+                            }
+                            className="rounded-md"
+                          />
+                        </div>
+
+                        {/* Checkbox Grid  */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-2">
+                          {values
+                            .filter((value) =>
+                              value
+                                .toLowerCase()
+                                .includes(
+                                  (searchTerms[fieldId] || "").toLowerCase()
+                                )
+                            )
+                            .map((value) => (
+                              <Checkbox
+                                key={value}
+                                checked={selectedItemsPerField[
+                                  fieldId
+                                ]?.selectedValues?.has(value)}
+                                onChange={() =>
+                                  handleDiscreteItemChange(fieldId, value)
+                                }
+                                className="p-2 hover:bg-gray-100 flex items-center"
+                              >
+                                <span className="text-sm text-gray-600">
+                                  {value}
+                                </span>
+                              </Checkbox>
+                            ))}
+                        </div>
                       </div>
-                    </div>
-                  </Panel>
-                )
-              )}
-            </Collapse>
+                    </Panel>
+                  )
+                )}
+              </Collapse>
+            )}
 
             {/* Apply Filters Button */}
             <button
-              onClick={applyFilters}
+              onClick={() => setShowChartTable(true)}
               disabled={Object.values(selectedItemsPerField).every(
                 (selections) => selections.selectedValues.size === 0
               )}
               className={`
-              w-full py-3 rounded mt-4
-              bg-[#2B5BA8] text-white font-semibold
-              hover:bg-[#234a87]
-              transition-colors
-              disabled:opacity-50 disabled:cursor-not-allowed
-            `}
+                  w-full py-3 rounded mt-4
+                  bg-[#2B5BA8] text-white font-semibold
+                  hover:bg-[#234a87]
+                  transition-colors
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
             >
               Apply Filters
             </button>
@@ -1742,14 +701,6 @@ const FilteredReportPage: React.FC = () => {
         )}
       </div>
 
-      {/* Main Content Placeholder */}
-      {/* <div className="flex-1 bg-gray-100 flex items-center justify-center">
-        <Empty
-          description="Select filters to view report"
-          className="text-gray-500"
-        />
-      </div>
-    </div> */}
       {/* Main Content */}
       <div className="flex-1 bg-white p-4 overflow-y-auto">
         {error ? (
@@ -1757,17 +708,36 @@ const FilteredReportPage: React.FC = () => {
             <div className="text-red-600 font-semibold mb-2">Error</div>
             <div>{error}</div>
           </div>
-        ) : showChartTable && report ? (
+        ) : showChartTable && selectedReport ? (
           <ChartTableComponent
-            report={report}
+            report={selectedReport}
             selectedFilters={selectedFilters}
+            columnsOrder={columnsOrder}
           />
         ) : (
-          <div className="text-center text-gray-500">
-            Select filters to view the data.
+          <div className="text-center justify-items-center align-middle text-gray-500">
+            Select a report to view its data.
           </div>
         )}
       </div>
+      {/* Expanded Filter Modal */}
+      {isFilterModalVisible && currentFilterField && (
+        <FieldFilterModal
+          fieldId={currentFilterField.fieldId}
+          fieldName={currentFilterField.fieldName}
+          values={currentFilterField.values}
+          onApply={(selectedValues) => {
+            setSelectedItemsPerField((prev) => ({
+              ...prev,
+              [currentFilterField.fieldId]: {
+                type: "discrete",
+                selectedValues: new Set(selectedValues),
+              },
+            }));
+            setIsFilterModalVisible(false);
+          }}
+        />
+      )}
     </div>
   );
 };

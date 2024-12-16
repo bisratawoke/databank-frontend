@@ -383,6 +383,7 @@ import {
 import * as XLSX from "xlsx";
 import StepsComponent from "../departments/components/StepsCompnent/StepsCompnent";
 
+// Existing interfaces remain the same
 interface FilteredValues {
   [fieldName: string]: string[];
 }
@@ -406,6 +407,7 @@ interface ProcessedData {
   [key: string]: string | number;
 }
 
+// Updated interface to include columnsOrder prop
 interface ChartTableComponentProps {
   report: {
     data: DataItem[];
@@ -415,9 +417,10 @@ interface ChartTableComponentProps {
     }[];
   };
   selectedFilters: FilteredValues;
+  columnsOrder?: string[]; // New prop for custom column order
 }
 
-// Color palette for charts
+// Existing constants and helper functions remain the same
 const COLOR_PALETTE = [
   "#1f77b4",
   "#ff7f0e",
@@ -431,16 +434,24 @@ const COLOR_PALETTE = [
   "#17becf",
 ];
 
-// Chart type component mapping
 const ChartComponents = {
   bar: BarChart,
   line: LineChart,
   pie: PieChart,
 };
 
+// Helper function to round numbers to two decimal places
+const roundToTwoDecimals = (value: any): any => {
+  if (typeof value === "number") {
+    return Number(value.toFixed(2));
+  }
+  return value;
+};
+
 const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
   report,
   selectedFilters,
+  columnsOrder, // Add new prop
 }) => {
   const [timeFrame, setTimeFrame] = useState("6Month");
   const [data, setData] = useState<ProcessedData[]>([]);
@@ -448,7 +459,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
   const [loading, setLoading] = useState(true);
   const [columns, setColumns] = useState<any[]>([]);
 
-  // New state for chart and table customization
+  // Existing state variables remain the same
   const [chartType, setChartType] = useState("bar");
   const [searchText, setSearchText] = useState("");
   const [filteredData, setFilteredData] = useState<ProcessedData[]>([]);
@@ -459,7 +470,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
   useEffect(() => {
     const transformData = (data: DataItem[], fields: any[]) => {
-      // Previous transformation logic
+      // Existing transformation logic remains the same
       const groupedByRow: { [key: string]: any } = {};
 
       // First pass: Group data by rows
@@ -479,7 +490,12 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           groupedByRow[rowIndex] = {};
         }
 
-        groupedByRow[rowIndex][fieldName] = value;
+        // Round numerical values to two decimal places
+        const processedValue = !isNaN(Number(value))
+          ? roundToTwoDecimals(Number(value))
+          : value;
+
+        groupedByRow[rowIndex][fieldName] = processedValue;
         groupedByRow[rowIndex][`${fieldName}_id`] = dataId;
       });
 
@@ -541,7 +557,20 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           .sort((a, b) => a.localeCompare(b))
       );
 
-      const tableColumns = Array.from(uniqueFields).map((fieldName) => ({
+      // Determine column order
+      let orderedFields = Array.from(uniqueFields);
+      if (columnsOrder && columnsOrder.length > 0) {
+        // First, include explicitly specified columns in order
+        orderedFields = columnsOrder.filter((col) => uniqueFields.has(col));
+
+        // Then append any remaining fields not in the specified order
+        const remainingFields = Array.from(uniqueFields).filter(
+          (field) => !columnsOrder.includes(field)
+        );
+        orderedFields.push(...remainingFields);
+      }
+
+      const tableColumns = orderedFields.map((fieldName) => ({
         title: fieldName,
         dataIndex: fieldName,
         key: fieldName,
@@ -558,7 +587,13 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           // Handle string sorting
           return (valueA || "").localeCompare(valueB || "");
         },
-        render: (value: any) => value || "-",
+        render: (value: any) => {
+          // Round numerical values to two decimal places in render
+          const processedValue = !isNaN(Number(value))
+            ? roundToTwoDecimals(Number(value))
+            : value;
+          return processedValue || "-";
+        },
       }));
 
       // Transform and filter the data
@@ -589,7 +624,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
       message.error("Failed to process data");
       setLoading(false);
     }
-  }, [report, selectedFilters]);
+  }, [report, selectedFilters, columnsOrder]);
 
   // Search functionality
   useEffect(() => {
