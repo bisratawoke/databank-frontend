@@ -374,6 +374,7 @@ import {
   Select,
   Popover,
   message,
+  Pagination,
 } from "antd";
 import {
   DownloadOutlined,
@@ -467,6 +468,9 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
     xAxis: string;
     yAxis: string[];
   }>({ xAxis: "", yAxis: [] });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     const transformData = (data: DataItem[], fields: any[]) => {
@@ -644,25 +648,29 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
   // Prepare chart data
   const chartData = useMemo(() => {
+    // Paginate the filtered data
+    const paginatedData = filteredData.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+
     if (!chartConfig.xAxis) return [];
 
     if (chartType === "pie") {
-      // Special handling for pie chart
-      const pieData = filteredData
+      const pieData = paginatedData
         .map((row) => {
-          const yAxis = chartConfig.yAxis[0]; // Use first y-axis for pie chart
+          const yAxis = chartConfig.yAxis[0];
           return {
             name: row[chartConfig.xAxis] || "Unknown",
             value: yAxis ? Number(row[yAxis]) : 0,
           };
         })
-        .filter((item) => item.value > 0); // Remove zero or invalid values
+        .filter((item) => item.value > 0);
 
       return pieData;
     }
 
-    // Existing logic for bar and line charts
-    return filteredData.map((row) => {
+    return paginatedData.map((row) => {
       const chartRow: any = {
         name: row[chartConfig.xAxis] || "Unknown",
       };
@@ -675,7 +683,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
       return chartRow;
     });
-  }, [filteredData, chartConfig, chartType]);
+  }, [filteredData, chartConfig, chartType, currentPage, pageSize]);
 
   // Export functions
   const prepareDataForExport = (data: any[]) => {
@@ -877,8 +885,8 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
   }
 
   return (
-    <div className="container justify-center">
-      <StepsComponent currentStep={2} />
+    <>
+      {/* <StepsComponent currentStep={2} /> */}
       <div className="p-5 max-w-[1200px] mx-auto text-center">
         <div className="flex justify-between items-center mb-5">
           <div className="flex gap-2">
@@ -929,6 +937,17 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             >
               <Button icon={<SettingOutlined />}>Configure Chart</Button>
             </Popover>
+
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={filteredData.length}
+              onChange={(page, newPageSize) => {
+                setCurrentPage(page);
+                setPageSize(newPageSize || 10);
+              }}
+              showSizeChanger
+            />
           </div>
         )}
 
@@ -944,7 +963,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
         {view === "chart" && <div className="mt-10">{renderChart()}</div>}
       </div>
-    </div>
+    </>
   );
 };
 

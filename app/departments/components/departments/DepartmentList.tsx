@@ -12,6 +12,8 @@ import {
 } from "@ant-design/icons";
 import { Department } from "./types";
 import FilterSidebar from "./FilterSidebar";
+import FilteredReportPage from "@/app/filter/page";
+import Link from "next/link";
 
 const { Sider, Content } = Layout;
 const { Search } = Input;
@@ -70,14 +72,19 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
   };
 
   // Navigate to reports page
-  const navigateToReports = (
-    departmentId: string,
-    categoryId: string,
-    subcategoryId: string
-  ) => {
-    router.push(
-      `/departments/reports/${departmentId}/${categoryId}/${subcategoryId}`
-    );
+  // const navigateToReports = () =>
+  // departmentId: string,
+  // categoryId: string,
+  // subcategoryId: string
+  // {
+  // router.push(
+  //   `/departments/reports/${departmentId}/${categoryId}/${subcategoryId}`
+  // );
+  // router.push(`/filter}`);
+  // };
+
+  const navigateToFilterPage = () => {
+    router.push("/filter");
   };
 
   // Search and filter logic
@@ -345,13 +352,14 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                       <div
                         key={subcategory._id}
                         className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                        onClick={() =>
-                          navigateToReports(
-                            department._id,
-                            category._id,
-                            subcategory._id
-                          )
-                        }
+                        // onClick={() =>
+                        //   navigateToReports(
+                        //     department._id,
+                        //     category._id,
+                        //     subcategory._id
+                        //   )
+                        // }
+                        onClick={navigateToFilterPage}
                       >
                         <div className="grid grid-flow-col justify-between ">
                           {/* Left: Subcategory Name and Tag */}

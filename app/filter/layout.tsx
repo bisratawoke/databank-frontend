@@ -1,12 +1,12 @@
-import React from "react";
-import FilteredReportPage from "./[filterId]/page";
-
-const layout = () => {
+export default function DepartmentsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
-      <FilteredReportPage />
+      {/* <StepsComponent currentStep={0} /> */}
+      {children}
     </>
   );
-};
-
-export default layout;
+}
