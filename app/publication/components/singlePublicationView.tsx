@@ -5,14 +5,23 @@ import SinglePublicationTitleContainer from "./singlePublicationTitleContainer";
 import SinglePublicationDownloadButton from "./singlePublicationDownloadButton";
 import SinglePublicationPreview from "./singlePublicationPreview";
 import SinglePublicationDesciptionContainer from "./singlePublicationDescriptionContainer";
-
+import PayWithTelebir from "./payWithTelebirButton";
+import Image from "next/image";
 export default function SinglePublicationView({
   publication,
 }: {
   publication: Record<string, any>;
 }) {
-  const { metadata, permanentLink, fileName, uploadDate, publicationType } =
-    publication;
+  const {
+    metadata,
+    permanentLink,
+    fileName,
+    uploadDate,
+    publicationType,
+    paymentRequired,
+    price,
+    coverImageLink,
+  } = publication;
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string>("");
 
@@ -57,11 +66,14 @@ export default function SinglePublicationView({
         <div className="col-start-3 col-end-5">
           <div className="max-w-3xl mx-auto  bg-white rounded-lg ">
             <div className="mt-6 mb-4">
-              <div className="mt-2 p-4 bg-gray-100 rounded-lg border border-gray-300">
+              <div className="">
                 {filePreview ? (
-                  metadata.type === "application/pdf" ? (
-                    <SinglePublicationPreview
-                      link={`http://${permanentLink}`}
+                  coverImageLink ? (
+                    <Image
+                      src={`http://${coverImageLink}`}
+                      alt="something"
+                      width={238}
+                      height={500}
                     />
                   ) : (
                     <div className="text-gray-600">
@@ -76,16 +88,16 @@ export default function SinglePublicationView({
               </div>
             </div>
             <div className="mt-8">
-              {publicationType === "PUBLIC" ? (
+              {!paymentRequired ? (
                 <SinglePublicationDownloadButton link={permanentLink} />
-              ) : publicationType === "FOR_SALE" ? (
-                <a
-                  href="/publication-request/post"
-                  className="inline-block px-4 py-2 bg-blue-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-blue-600 transition-colors duration-300"
-                >
-                  Pay Now
-                </a>
-              ) : null}
+              ) : (
+                <PayWithTelebir
+                  price={price}
+                  title={metadata.title}
+                  referenceNumber={""}
+                  orderId={"123"}
+                />
+              )}
             </div>
           </div>
         </div>
