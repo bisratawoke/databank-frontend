@@ -88,8 +88,82 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
   };
 
   // Search and filter logic
+  // const filteredDepartments = useMemo(() => {
+  //   // Start with base filtering
+  //   let result = departments;
+
+  //   // Apply text search if search term exists
+  //   if (searchTerm.trim()) {
+  //     const searchTermLower = searchTerm.toLowerCase().trim();
+  //     result = result.filter((department) => {
+  //       // Check department name
+  //       if (department.name.toLowerCase().includes(searchTermLower)) {
+  //         return true;
+  //       }
+
+  //       // Check categories
+  //       const hasMatchingCategory = department.category.some((category) => {
+  //         // Check category name
+  //         if (category.name.toLowerCase().includes(searchTermLower)) {
+  //           return true;
+  //         }
+
+  //         // Check subcategories
+  //         const hasMatchingSubcategory = category.subcategory.some(
+  //           (subcategory) =>
+  //             subcategory.name.toLowerCase().includes(searchTermLower)
+  //         );
+
+  //         return hasMatchingSubcategory;
+  //       });
+
+  //       return hasMatchingCategory;
+  //     });
+  //   }
+
+  //   // Apply additional filters if any are selected
+  //   if (
+  //     selectedFilters.departments.length > 0 ||
+  //     selectedFilters.categories.length > 0 ||
+  //     selectedFilters.subcategories.length > 0
+  //   ) {
+  //     result = result.filter((department) => {
+  //       // If no department filters, or department is in selected filters
+  //       const departmentMatch =
+  //         selectedFilters.departments.length === 0 ||
+  //         selectedFilters.departments.includes(department._id);
+
+  //       // If department matches, filter categories
+  //       if (departmentMatch) {
+  //         const filteredCategories = department.category.filter((category) => {
+  //           const categoryMatch =
+  //             selectedFilters.categories.length === 0 ||
+  //             selectedFilters.categories.includes(category._id);
+
+  //           // If category matches, filter subcategories
+  //           if (categoryMatch) {
+  //             const filteredSubcategories = category.subcategory.filter(
+  //               (subcategory) =>
+  //                 selectedFilters.subcategories.length === 0 ||
+  //                 selectedFilters.subcategories.includes(subcategory._id)
+  //             );
+
+  //             return filteredSubcategories.length > 0;
+  //           }
+
+  //           return false;
+  //         });
+
+  //         return filteredCategories.length > 0;
+  //       }
+
+  //       return false;
+  //     });
+  //   }
+
+  //   return result;
+  // }, [departments, selectedFilters, searchTerm]);
   const filteredDepartments = useMemo(() => {
-    // Start with base filtering
     let result = departments;
 
     // Apply text search if search term exists
@@ -97,16 +171,14 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
       const searchTermLower = searchTerm.toLowerCase().trim();
       result = result.filter((department) => {
         // Check department name
-        if (department.name.toLowerCase().includes(searchTermLower)) {
+        if (department.name.toLowerCase().includes(searchTermLower))
           return true;
-        }
 
         // Check categories
         const hasMatchingCategory = department.category.some((category) => {
           // Check category name
-          if (category.name.toLowerCase().includes(searchTermLower)) {
+          if (category.name.toLowerCase().includes(searchTermLower))
             return true;
-          }
 
           // Check subcategories
           const hasMatchingSubcategory = category.subcategory.some(
@@ -121,43 +193,41 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
       });
     }
 
-    // Apply additional filters if any are selected
+    // Apply filter selections
     if (
       selectedFilters.departments.length > 0 ||
       selectedFilters.categories.length > 0 ||
       selectedFilters.subcategories.length > 0
     ) {
       result = result.filter((department) => {
-        // If no department filters, or department is in selected filters
+        // Department filter
         const departmentMatch =
           selectedFilters.departments.length === 0 ||
           selectedFilters.departments.includes(department._id);
 
-        // If department matches, filter categories
-        if (departmentMatch) {
-          const filteredCategories = department.category.filter((category) => {
-            const categoryMatch =
-              selectedFilters.categories.length === 0 ||
-              selectedFilters.categories.includes(category._id);
+        if (!departmentMatch) return false;
 
-            // If category matches, filter subcategories
-            if (categoryMatch) {
-              const filteredSubcategories = category.subcategory.filter(
-                (subcategory) =>
-                  selectedFilters.subcategories.length === 0 ||
-                  selectedFilters.subcategories.includes(subcategory._id)
-              );
+        // Filter categories
+        const filteredCategories = department.category.filter((category) => {
+          const categoryMatch =
+            selectedFilters.categories.length === 0 ||
+            selectedFilters.categories.includes(category._id);
 
-              return filteredSubcategories.length > 0;
-            }
+          // If category matches, check subcategories
+          if (categoryMatch) {
+            const filteredSubcategories = category.subcategory.filter(
+              (subcategory) =>
+                selectedFilters.subcategories.length === 0 ||
+                selectedFilters.subcategories.includes(subcategory._id)
+            );
 
-            return false;
-          });
+            return filteredSubcategories.length > 0;
+          }
 
-          return filteredCategories.length > 0;
-        }
+          return false;
+        });
 
-        return false;
+        return filteredCategories.length > 0;
       });
     }
 
@@ -242,69 +312,6 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
             }}
           />
         </div>
-        {/* 
-        {filteredDepartments.length === 0 ? (
-          <Empty
-            description="No departments found matching your search or filters"
-            className="mt-20"
-          />
-        ) : (
-          <>
-            {currentItems.map((department) => (
-              <div
-                key={department._id}
-                className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden"
-              >
-                <div className="bg-gray-50 p-4 font-semibold text-gray-800 flex items-center">
-                  <FolderOutlined className="mr-2 text-primary" />
-                  {department.name}
-                </div>
-
-                {department.category.map((category) => (
-                  <div key={category._id} className="p-4 border-t">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center">
-                      <FileTextOutlined className="mr-2 text-secondary" />
-                      {category.name}
-                    </h3>
-
-                    {category.subcategory.map((subcategory) => (
-                      <div
-                        key={subcategory._id}
-                        className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                        onClick={() =>
-                          navigateToReports(
-                            department._id,
-                            category._id,
-                            subcategory._id
-                          )
-                        }
-                      >
-                        <div className="flex justify-between items-center">
-                          <div className="font-medium text-gray-600">
-                            {subcategory.name}
-                          </div>
-                          {subcategory.report &&
-                            subcategory.report.length > 0 && (
-                              <Badge
-                                count={subcategory.report.length}
-                                color="#1890ff"
-                                style={{ backgroundColor: "#e6f7ff" }}
-                              />
-                            )}
-                        </div>
-                        {(!subcategory.report ||
-                          subcategory.report.length === 0) && (
-                          <div className="text-gray-400 text-sm mt-1">
-                            No reports available
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ))} */}
-
         {filteredDepartments.length === 0 ? (
           <Empty
             description="No departments found matching your search or filters"
@@ -352,41 +359,36 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                       <div
                         key={subcategory._id}
                         className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                        // onClick={() =>
-                        //   navigateToReports(
-                        //     department._id,
-                        //     category._id,
-                        //     subcategory._id
-                        //   )
-                        // }
                         onClick={navigateToFilterPage}
                       >
-                        <div className="grid grid-flow-col justify-between ">
-                          {/* Left: Subcategory Name and Tag */}
-                          <div className=" place-items-start">
-                            <div className="font-medium text-gray-600">
-                              {subcategory.name}
-                            </div>
-                            <div className="place-items-end">
-                              <span className="justify-end ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
-                                Subcategory
+                        <div className="flex justify-between items-center">
+                          {/* Subcategory Name and Tag */}
+                          <div className="flex flex-col">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium text-gray-600">
+                                {subcategory.name}
                               </span>
                             </div>
                           </div>
 
-                          {/* Right: Reports Badge or No Reports */}
-                          {subcategory.report &&
-                          subcategory.report.length > 0 ? (
-                            <Badge
-                              count={subcategory.report.length}
-                              color="#1890ff"
-                              style={{ backgroundColor: "#e6f7ff" }}
-                            />
-                          ) : (
-                            <div className="text-gray-400 text-sm">
-                              No reports available
-                            </div>
-                          )}
+                          {/* Reports Badge */}
+                          <div className="grid grid-flow-row place-items-end space-x-2">
+                            <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full place-items-end">
+                              Sub
+                            </span>
+                            {subcategory.report &&
+                            subcategory.report.length > 0 ? (
+                              <Badge
+                                count={subcategory.report.length}
+                                color="#1890ff"
+                                style={{ backgroundColor: "#e6f7ff" }}
+                              />
+                            ) : (
+                              <div className="text-gray-400 text-sm">
+                                No reports available
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

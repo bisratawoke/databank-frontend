@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 //!improved onw
 "use client";
 
@@ -32,6 +31,7 @@ import {
   Field,
   SelectedItemsState,
   SubCategory,
+  Report,
 } from "./types";
 import FieldFilterModal from "./_components/FieldFilterModal";
 import CustomDropdown from "./_components/CustomDropdown";
@@ -44,7 +44,6 @@ const FilteredReportPage: React.FC = () => {
 
   // console.log("session: ", session);
 
-  // Hierarchical Selection States
   const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
     null
@@ -62,12 +61,15 @@ const FilteredReportPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChartTable, setShowChartTable] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Filter States
   const [selectedItemsPerField, setSelectedItemsPerField] =
     useState<SelectedItemsState>({});
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
+
   const [searchTerms, setSearchTerms] = useState<{ [fieldId: string]: string }>(
     {}
   );
@@ -80,7 +82,7 @@ const FilteredReportPage: React.FC = () => {
     values: string[];
   } | null>(null);
 
-  const [columnsOrder, setColumnsOrder] = useState<string[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
 
   // Fetch Hierarchical Data
   useEffect(() => {
@@ -108,6 +110,17 @@ const FilteredReportPage: React.FC = () => {
 
   // Handle Department Selection
   const handleDepartmentSelect = (departmentId: string) => {
+    if (!departmentId) {
+      // If null, reset everything
+      setSelectedDepartment(null);
+      setCategories([]);
+      setSelectedCategory(null);
+      setSelectedSubCategory(null);
+      setAvailableReports([]);
+      setSelectedReport(null);
+      return;
+    }
+
     const selectedDept = departments.find((dept) => dept._id === departmentId);
     if (selectedDept) {
       setSelectedDepartment(departmentId);
@@ -122,6 +135,13 @@ const FilteredReportPage: React.FC = () => {
 
   // Handle Category Selection
   const handleCategorySelect = (categoryId: string) => {
+    if (!categoryId) {
+      setSelectedCategory(null);
+      setSelectedSubCategory(null);
+      setAvailableReports([]);
+      setSelectedReport(null);
+      return;
+    }
     const selectedCat = categories.find((cat) => cat._id === categoryId);
     if (selectedCat) {
       setSelectedCategory(categoryId);
@@ -135,6 +155,12 @@ const FilteredReportPage: React.FC = () => {
 
   // Handle SubCategory Selection
   const handleSubCategorySelect = (subCategoryId: string) => {
+    if (!subCategoryId) {
+      setSelectedSubCategory(null);
+      setAvailableReports([]);
+      setSelectedReport(null);
+      return;
+    }
     const selectedSubCat = subCategories.find(
       (subCat) => subCat._id === subCategoryId
     );
@@ -152,10 +178,15 @@ const FilteredReportPage: React.FC = () => {
 
   // Handle Report Selection
   const handleReportSelect = async (reportId: string) => {
+    if (!reportId) {
+      setSelectedReport(null);
+      return;
+    }
     if (!session?.accessToken) {
       setError("Authentication required");
       return;
     }
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -204,17 +235,16 @@ const FilteredReportPage: React.FC = () => {
 
       setSelectedItemsPerField(initialSelectedState);
       setSearchTerms(initialSearchTerms);
+      setFilteredData(data.data);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  console.log("selectedReport: ", selectedReport);
+  // console.log("selectedReport: ", selectedReport);
 
-  const handleColumnsOrder = (order: string[]) => {
-    console.log("order: ", order);
-    setColumnsOrder(order);
-  };
   const handleDiscreteItemChange = (fieldId: string, item: string) => {
     setSelectedItemsPerField((prev) => {
       const currentState = prev[fieldId];
@@ -298,73 +328,34 @@ const FilteredReportPage: React.FC = () => {
     );
   }, [selectedReport]);
 
-  // Enhanced Dropdown Component with Alphabetical Sorting and Searching
-  // const EnhancedHierarchicalDropdown = ({
-  //   items,
-  //   selectedItems,
-  //   onSelect,
-  //   placeholder,
-  //   disabled = false,
-  //   mode = "single",
-  // }: {
-  //   items: Array<{ _id: string; name: string }>;
-  //   selectedItems: string[];
-  //   onSelect: (selectedIds: string[]) => void;
-  //   placeholder: string;
-  //   disabled?: boolean;
-  //   mode?: "single" | "multiple";
-  // }) => {
-  //   const [searchTerm, setSearchTerm] = useState("");
-  //   const [open, setOpen] = useState(false);
+  const applyFilters = () => {
+    console.log("selectedReprot in here: ", selectedReport);
+    console.log("selectedItemsperFiled: ", selectedItemsPerField);
+    const filtersSelected = Object.entries(selectedItemsPerField).reduce(
+      (acc, [fieldId, selectedFilter]) => {
+        const field = selectedReport?.fields.find((f) => f._id === fieldId);
+        if (!field) return acc;
 
-  //   // Alphabetical sorting and filtering
-  //   const processedItems = useMemo(() => {
-  //     const sortedItems = items
-  //       .sort((a, b) => a.name.localeCompare(b.name))
-  //       .filter((item) =>
-  //         item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  //       );
-  //     return sortedItems;
-  //   }, [items, searchTerm]);
+        if (
+          selectedFilter.selectedValues &&
+          selectedFilter.selectedValues.size > 0
+        ) {
+          acc[field.name] = Array.from(selectedFilter.selectedValues);
+        }
 
-  //   return (
-  //     <Select
-  //       mode={mode}
-  //       style={{ width: "100%" }}
-  //       placeholder={placeholder}
-  //       disabled={disabled}
-  //       open={open}
-  //       onDropdownVisibleChange={(visible) => setOpen(visible)}
-  //       value={selectedItems}
-  //       onChange={onSelect}
-  //       dropdownRender={(menu) => (
-  //         <div>
-  //           <Input
-  //             prefix={<SearchOutlined />}
-  //             placeholder="Search..."
-  //             value={searchTerm}
-  //             onChange={(e) => setSearchTerm(e.target.value)}
-  //             style={{ margin: "8px 16px", width: "calc(100% - 32px)" }}
-  //           />
-  //           {menu}
-  //         </div>
-  //       )}
-  //     >
-  //       {processedItems.map((item) => (
-  //         <Option key={item._id} value={item._id}>
-  //           {mode === "multiple" && (
-  //             <Checkbox
-  //               checked={selectedItems.includes(item._id)}
-  //               onChange={() => {}}
-  //               style={{ marginRight: 8 }}
-  //             />
-  //           )}
-  //           {item.name}
-  //         </Option>
-  //       ))}
-  //     </Select>
-  //   );
-  // };
+        return acc;
+      },
+      {} as { [fieldName: string]: string[] }
+    );
+
+    console.log("filtersSelected: ", filtersSelected);
+    if (Object.keys(filtersSelected).length > 0) {
+      setSelectedFilters(filtersSelected);
+      setShowChartTable(true);
+      setShowMap(true);
+      setIsSidebarOpen(false);
+    }
+  };
 
   // Render Loading State
   if (loading) {
@@ -411,22 +402,24 @@ const FilteredReportPage: React.FC = () => {
                 items={departments}
                 selectedItems={selectedDepartment ? [selectedDepartment] : []}
                 onSelect={(selectedIds) =>
-                  handleDepartmentSelect(selectedIds[0])
+                  handleDepartmentSelect(selectedIds[0] || null)
                 }
                 onClear={() => {
                   setSelectedDepartment(null);
                 }}
                 placeholder="Select Department"
-                mode="multiple"
+                mode="single"
               />
 
               <CustomDropdown
                 items={categories}
                 selectedItems={selectedCategory ? [selectedCategory] : []}
-                onSelect={(selectedIds) => handleCategorySelect(selectedIds[0])}
+                onSelect={(selectedIds) =>
+                  handleCategorySelect(selectedIds[0] || null)
+                }
                 placeholder="Select Category"
                 disabled={!selectedDepartment}
-                mode="multiple"
+                mode="single"
                 onClear={() => {
                   setSelectedCategory(null);
                 }}
@@ -437,11 +430,11 @@ const FilteredReportPage: React.FC = () => {
                 items={subCategories}
                 selectedItems={selectedSubCategory ? [selectedSubCategory] : []}
                 onSelect={(selectedIds) =>
-                  handleSubCategorySelect(selectedIds[0])
+                  handleSubCategorySelect(selectedIds[0] || null)
                 }
                 placeholder="Select Subcategory"
                 disabled={!selectedDepartment}
-                mode="multiple"
+                mode="single"
                 onClear={() => {
                   setSelectedSubCategory(null);
                 }}
@@ -449,12 +442,17 @@ const FilteredReportPage: React.FC = () => {
 
               {/* Available Reports Dropdown */}
               <CustomDropdown
-                items={availableReports}
-                selectedItems={selectedReport ? [selectedReport] : []}
-                onSelect={(selectedIds) => handleReportSelect(selectedIds[0])}
+                items={availableReports.map((report) => ({
+                  _id: report._id,
+                  name: report.name,
+                }))} // Pass the items with `_id` and `name`
+                selectedItems={selectedReport ? [selectedReport._id] : []} // Pass only the `_id` of the selected report
+                onSelect={(selectedIds) =>
+                  handleReportSelect(selectedIds[0] || null)
+                }
                 placeholder="Select Report"
                 disabled={!selectedDepartment}
-                mode="multiple"
+                mode="single"
                 enableAdvancedFeatures={true}
                 onClear={() => {
                   setSelectedReport(null);
@@ -465,156 +463,210 @@ const FilteredReportPage: React.FC = () => {
             {/* Existing Filters Section (only show if a report is selected) */}
 
             {selectedReport && (
-              <Collapse
-                accordion
-                defaultActiveKey={[]}
-                expandIcon={({ isActive }) => (
-                  <CaretDownOutlined rotate={isActive ? 180 : 0} />
-                )}
-              >
-                {Object.entries(groupedDataItems).map(
-                  ([fieldId, { fieldName, type, values }]) => (
-                    <Panel
-                      header={
-                        <div className="flex justify-between items-center">
-                          <span>{fieldName}</span>
-                          <Tooltip title="Expand Filter">
-                            <Button
-                              icon={<ExpandOutlined />}
-                              type="text"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentFilterField({
-                                  fieldId,
-                                  fieldName,
-                                  values,
-                                });
-                                setIsFilterModalVisible(true);
-                              }}
-                            />
-                          </Tooltip>
-                        </div>
-                      }
-                      key={fieldId}
-                      className="text-gray-700"
-                    >
-                      <div>
-                        {/* Select All Checkbox  */}
-                        <div className="flex justify-between items-center mb-3">
-                          {values.length > 0 && (
-                            <Checkbox
-                              indeterminate={
-                                selectedItemsPerField[fieldId]?.selectedValues
-                                  .size > 0 &&
-                                selectedItemsPerField[fieldId]?.selectedValues
-                                  .size !== values.length
-                              }
-                              checked={
-                                selectedItemsPerField[fieldId]?.selectedValues
-                                  .size === values.length
-                              }
-                              onChange={() =>
-                                handleDiscreteSelectAll(
-                                  fieldId,
-                                  selectedItemsPerField[fieldId]?.selectedValues
-                                    .size === values.length
-                                    ? []
-                                    : values
-                                )
-                              }
-                            >
-                              Select All
-                            </Checkbox>
-                          )}
-                        </div>
+              <div className="pl-4 bg-stone-100">
+                {/* Label for Report Filters */}
+                <h3 className="text-small font-semibold mb-4">
+                  Report Filters
+                </h3>
 
-                        {/* Search Input  */}
-                        <div className="relative mb-3">
-                          <Input
-                            placeholder={`Search ${fieldName}`}
-                            value={searchTerms[fieldId] || ""}
-                            onChange={(e) =>
-                              handleSearchChange(fieldId, e.target.value)
-                            }
-                            prefix={
-                              <SearchOutlined className="text-gray-400" />
-                            }
-                            className="rounded-md"
-                          />
-                        </div>
+                <Collapse
+                  accordion
+                  defaultActiveKey={[]}
+                  expandIcon={({ isActive }) => (
+                    <CaretDownOutlined rotate={isActive ? 180 : 0} />
+                  )}
+                >
+                  {Object.entries(groupedDataItems).map(
+                    ([fieldId, { fieldName, type, values }]) => {
+                      const visibleValues = values.slice(0, visibleCount);
+                      const hasMore = values.length > visibleCount;
 
-                        {/* Checkbox Grid  */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-2">
-                          {values
-                            .filter((value) =>
-                              value
-                                .toLowerCase()
-                                .includes(
-                                  (searchTerms[fieldId] || "").toLowerCase()
-                                )
-                            )
-                            .map((value) => (
-                              <Checkbox
-                                key={value}
-                                checked={selectedItemsPerField[
-                                  fieldId
-                                ]?.selectedValues?.has(value)}
-                                onChange={() =>
-                                  handleDiscreteItemChange(fieldId, value)
+                      return (
+                        <Panel
+                          header={
+                            <div className="flex justify-between items-center">
+                              <span>{fieldName}</span>
+                              <Tooltip title="Expand Filter">
+                                <Button
+                                  icon={<ExpandOutlined />}
+                                  type="text"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCurrentFilterField({
+                                      fieldId,
+                                      fieldName,
+                                      values,
+                                    });
+                                    setIsFilterModalVisible(true);
+                                  }}
+                                />
+                              </Tooltip>
+                            </div>
+                          }
+                          key={fieldId}
+                          className="text-gray-700"
+                        >
+                          <div>
+                            {/* Select All Checkbox */}
+                            <div className="flex justify-between items-center mb-3">
+                              {values.length > 0 && (
+                                <Checkbox
+                                  indeterminate={
+                                    selectedItemsPerField[fieldId]
+                                      ?.selectedValues.size > 0 &&
+                                    selectedItemsPerField[fieldId]
+                                      ?.selectedValues.size !== values.length
+                                  }
+                                  checked={
+                                    selectedItemsPerField[fieldId]
+                                      ?.selectedValues.size === values.length
+                                  }
+                                  onChange={() =>
+                                    handleDiscreteSelectAll(
+                                      fieldId,
+                                      selectedItemsPerField[fieldId]
+                                        ?.selectedValues.size === values.length
+                                        ? []
+                                        : values
+                                    )
+                                  }
+                                >
+                                  Select All
+                                </Checkbox>
+                              )}
+                            </div>
+
+                            {/* Search Input */}
+                            <div className="relative mb-3">
+                              <Input
+                                placeholder={`Search ${fieldName}`}
+                                value={searchTerms[fieldId] || ""}
+                                onChange={(e) =>
+                                  handleSearchChange(fieldId, e.target.value)
                                 }
-                                className="p-2 hover:bg-gray-100 flex items-center"
-                              >
-                                <span className="text-sm text-gray-600">
-                                  {value}
-                                </span>
-                              </Checkbox>
-                            ))}
-                        </div>
-                      </div>
-                    </Panel>
-                  )
-                )}
-              </Collapse>
+                                prefix={
+                                  <SearchOutlined className="text-gray-400" />
+                                }
+                                className="rounded-md"
+                              />
+                            </div>
+
+                            {/* Checkbox Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-2">
+                              {visibleValues
+                                .filter((value) =>
+                                  value
+                                    .toLowerCase()
+                                    .includes(
+                                      (searchTerms[fieldId] || "").toLowerCase()
+                                    )
+                                )
+                                .map((value) => (
+                                  <Checkbox
+                                    key={value}
+                                    checked={selectedItemsPerField[
+                                      fieldId
+                                    ]?.selectedValues?.has(value)}
+                                    onChange={() =>
+                                      handleDiscreteItemChange(fieldId, value)
+                                    }
+                                    className="p-2 hover:bg-gray-100 flex items-center"
+                                  >
+                                    <span className="text-sm text-gray-600">
+                                      {value}
+                                    </span>
+                                  </Checkbox>
+                                ))}
+                            </div>
+
+                            {/* Expand Button */}
+                            {hasMore && (
+                              <div className="text-center mt-3">
+                                <Button
+                                  type="link"
+                                  onClick={() =>
+                                    setVisibleCount(visibleCount + 20)
+                                  }
+                                >
+                                  Show More
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Panel>
+                      );
+                    }
+                  )}
+                </Collapse>
+              </div>
             )}
 
-            {/* Apply Filters Button */}
-            <button
-              onClick={() => {
-                setShowChartTable(true);
-                setIsSidebarOpen(false);
-              }}
-              disabled={Object.values(selectedItemsPerField).every(
-                (selections) => selections.selectedValues.size === 0
-              )}
-              className={`
+            <div className="grid grid-flow-col justify-between">
+              {/* Apply Filters Button */}
+              <Button
+                type="primary"
+                onClick={applyFilters}
+                disabled={Object.values(selectedItemsPerField).every(
+                  (selections) => selections.selectedValues.size === 0
+                )}
+                className={`
                   w-full py-3 rounded mt-4
                   bg-[#2B5BA8] text-white font-semibold
                   hover:bg-[#234a87]
                   transition-colors
                   disabled:opacity-50 disabled:cursor-not-allowed
                 `}
-            >
-              Apply Filters
-            </button>
+              >
+                Apply Filters
+              </Button>
+              {/* Clear All Button */}
+              <Button
+                type="default"
+                onClick={() => {
+                  setSelectedDepartment(null);
+                  setSelectedCategory(null);
+                  setSelectedSubCategory(null);
+                  setSelectedReport(null);
+                  setAvailableReports([]);
+                  setCategories([]);
+                  setSubCategories([]);
+                }}
+                className={`
+                  text-red-500 border-red-500 hover:bg-red-50
+                   w-full py-3 rounded mt-4
+               font-semibold
+                  transition-colors
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  `}
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-white p-4">
+
+      <div
+        className={`flex-1 m-auto ${
+          !isSidebarOpen ? "w-full" : "w-[70%] m-auto"
+        } px-4`}
+      >
         {error ? (
           <div className="w-full p-8 text-center">
             <div className="text-red-600 font-semibold mb-2">Error</div>
             <div>{error}</div>
           </div>
         ) : showChartTable && selectedReport ? (
-          <ChartTableComponent
-            report={selectedReport}
-            selectedFilters={selectedFilters}
-            columnsOrder={columnsOrder}
-          />
+          <>
+            <ChartTableComponent
+              report={selectedReport}
+              selectedFilters={selectedFilters}
+            />
+          </>
         ) : (
-          <div className="text-center justify-items-center align-middle text-gray-500">
+          <div className="text-center  text-gray-700">
             Select a report to view its data.
           </div>
         )}

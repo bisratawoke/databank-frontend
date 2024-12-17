@@ -348,6 +348,7 @@
 
 // export default ChartTableComponent;
 
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
@@ -383,6 +384,7 @@ import {
 } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import StepsComponent from "../departments/components/StepsCompnent/StepsCompnent";
+import MapComponent from "./MapComponent";
 
 // Existing interfaces remain the same
 interface FilteredValues {
@@ -418,7 +420,6 @@ interface ChartTableComponentProps {
     }[];
   };
   selectedFilters: FilteredValues;
-  columnsOrder?: string[]; // New prop for custom column order
 }
 
 // Existing constants and helper functions remain the same
@@ -442,18 +443,36 @@ const ChartComponents = {
 };
 
 // Helper function to round numbers to two decimal places
-const roundToTwoDecimals = (value: any): any => {
+function roundToTwoDecimals(value: any): any {
   if (typeof value === "number") {
     return Number(value.toFixed(2));
   }
   return value;
-};
+}
+
+function trimName(name: string, maxLength: number = 14): string {
+  if (!name || typeof name !== "string") return "";
+
+  if (name.length <= maxLength) {
+    return name;
+  }
+
+  return `${name.substring(0, maxLength)}...`;
+}
+
+function removeLeadingZeros(value: string | number) {
+  if (typeof value === "string") {
+    return value.replace(/^0+/, "") || "0"; // Ensure "000" becomes "0"
+  }
+  return value; // Return numeric values as-is
+}
 
 const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
   report,
   selectedFilters,
-  columnsOrder, // Add new prop
 }) => {
+  console.log("reports recieved: ", report);
+  console.log("selectedFilters in charttable: ", selectedFilters);
   const [timeFrame, setTimeFrame] = useState("6Month");
   const [data, setData] = useState<ProcessedData[]>([]);
   const [view, setView] = useState("table");
@@ -474,16 +493,19 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
   useEffect(() => {
     const transformData = (data: DataItem[], fields: any[]) => {
-      // Existing transformation logic remains the same
       const groupedByRow: { [key: string]: any } = {};
 
-      // First pass: Group data by rows
+      console.log("groupedByRow: ", groupedByRow);
+
+      console.log("data: ", data);
+      console.log("fields: ", fields);
+
+      // Group the data by row
       data.forEach((item) => {
-        const fieldName = item.field.name;
-        const value = item.value;
+        const fieldName = trimName(item.field.name);
+        const value = removeLeadingZeros(item.value);
         const dataId = item._id;
 
-        // Find or create a row index for this item
         let rowIndex = Object.keys(groupedByRow).find((key) => {
           const row = groupedByRow[key];
           return !row.hasOwnProperty(fieldName);
@@ -494,39 +516,32 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
           groupedByRow[rowIndex] = {};
         }
 
-        // Round numerical values to two decimal places
-        const processedValue = !isNaN(Number(value))
-          ? roundToTwoDecimals(Number(value))
-          : value;
-
-        groupedByRow[rowIndex][fieldName] = processedValue;
+        groupedByRow[rowIndex][fieldName] = value;
         groupedByRow[rowIndex][`${fieldName}_id`] = dataId;
       });
 
-      // Second pass: Apply filters and transform the data
+      // Filter rows based on selectedFilters
       const transformedData = Object.keys(groupedByRow).reduce(
         (acc, rowIndex) => {
           const row = groupedByRow[rowIndex];
           let includeRow = true;
 
-          // Check if the row matches all selected filters
+          // Apply filters dynamically
           for (const [fieldName, selectedValues] of Object.entries(
             selectedFilters
           )) {
-            if (selectedValues.length > 0) {
-              const rowValue = row[fieldName];
-              if (!selectedValues.includes(rowValue)) {
-                includeRow = false;
-                break;
-              }
+            const rowValue = row[fieldName];
+            if (
+              selectedValues.length > 0 &&
+              !selectedValues.includes(rowValue)
+            ) {
+              includeRow = false;
+              break;
             }
           }
 
-          // Only include the row if it passes all filters
           if (includeRow) {
-            const processedRow: ProcessedData = {
-              key: parseInt(rowIndex),
-            };
+            const processedRow: ProcessedData = { key: parseInt(rowIndex) };
 
             fields.forEach((field) => {
               const fieldName = field.name;
@@ -537,16 +552,17 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             acc.push(processedRow);
           }
 
+          console.log("acc: ", acc);
           return acc;
         },
         [] as ProcessedData[]
       );
 
+      console.log("Filtered and Transformed Data: ", transformedData);
       return transformedData;
     };
 
     try {
-      // Ensure report and report.data exist
       if (!report || !report.data || report.data.length === 0) {
         message.warning("No data available for processing");
         setData([]);
@@ -555,61 +571,51 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
         return;
       }
 
-      const uniqueFields = new Set(
-        report.data
-          .map((item) => item.field.name)
-          .sort((a, b) => a.localeCompare(b))
-      );
+      // Dynamic column creation
+      const uniqueFields = new Set(report.data.map((item) => item.field.name));
+      const orderedFields = Array.from(uniqueFields);
 
-      // Determine column order
-      let orderedFields = Array.from(uniqueFields);
-      if (columnsOrder && columnsOrder.length > 0) {
-        // First, include explicitly specified columns in order
-        orderedFields = columnsOrder.filter((col) => uniqueFields.has(col));
-
-        // Then append any remaining fields not in the specified order
-        const remainingFields = Array.from(uniqueFields).filter(
-          (field) => !columnsOrder.includes(field)
-        );
-        orderedFields.push(...remainingFields);
-      }
-
-      const tableColumns = orderedFields.map((fieldName) => ({
-        title: fieldName,
-        dataIndex: fieldName,
-        key: fieldName,
-        width: 150,
-        sorter: (a: any, b: any) => {
-          const valueA = a[fieldName];
-          const valueB = b[fieldName];
-
-          // Handle numeric sorting
-          if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
-            return Number(valueA) - Number(valueB);
-          }
-
-          // Handle string sorting
-          return (valueA || "").localeCompare(valueB || "");
+      const tableColumns = [
+        {
+          title: "No.",
+          dataIndex: "no",
+          key: "no",
+          width: 60,
+          render: (_: any, __: any, index: number) => index + 1,
         },
-        render: (value: any) => {
-          // Round numerical values to two decimal places in render
-          const processedValue = !isNaN(Number(value))
-            ? roundToTwoDecimals(Number(value))
-            : value;
-          return processedValue || "-";
-        },
-      }));
+        ...orderedFields.map((fieldName) => ({
+          title: fieldName,
+          dataIndex: fieldName,
+          key: fieldName,
+          width: 150,
+          sorter: (a: any, b: any) => {
+            const valueA = a[fieldName];
+            const valueB = b[fieldName];
+            return !isNaN(Number(valueA)) && !isNaN(Number(valueB))
+              ? Number(valueA) - Number(valueB)
+              : (valueA || "").localeCompare(valueB || "");
+          },
+          render: (value: any) =>
+            !isNaN(Number(value))
+              ? roundToTwoDecimals(Number(value))
+              : trimName(value) || "-",
+        })),
+      ];
 
       // Transform and filter the data
-      const transformedData = transformData(report.data, report.fields);
+      const transformedData = transformData(report.data, report.fields).map(
+        (item, index) => ({
+          ...item,
+          no: index + 1,
+        })
+      );
 
-      // Set initial data
       setData(transformedData);
-      setFilteredData(transformedData);
+      setFilteredData(transformedData); // Set the filtered data for rendering
       setColumns(tableColumns);
 
-      // Set initial chart configuration
-      if (transformedData && transformedData.length > 0) {
+      // Chart configuration setup
+      if (transformedData.length > 0) {
         const numericColumns = tableColumns
           .filter((col) =>
             transformedData.some((row) => !isNaN(Number(row[col.dataIndex])))
@@ -618,7 +624,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
         setChartConfig({
           xAxis: tableColumns[0]?.dataIndex || "",
-          yAxis: numericColumns.slice(0, 4), // Select up to 4 numeric columns
+          yAxis: numericColumns.slice(0, 4),
         });
       }
 
@@ -628,7 +634,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
       message.error("Failed to process data");
       setLoading(false);
     }
-  }, [report, selectedFilters, columnsOrder]);
+  }, [report, selectedFilters]);
 
   // Search functionality
   useEffect(() => {
@@ -876,6 +882,18 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
     );
   };
 
+  const sampleData = [
+    {
+      latitude: 9.045,
+      longitude: 38.7468,
+      name: "Addis Ababa",
+      value: 100,
+    },
+  ];
+
+  const handleRegionClick = (region) => {
+    console.log("Selected Region:", region);
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -894,14 +912,20 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
               type={view === "table" ? "primary" : "default"}
               onClick={() => setView("table")}
             >
-              Show as table
+              Table
             </Button>
             <Button
               type={view === "chart" ? "primary" : "default"}
               onClick={() => setView("chart")}
             >
-              Show as chart
+              Chart
             </Button>
+            {/* <Button
+              type={view === "mamp" ? "primary" : "default"}
+              onClick={() => setView("map")}
+            >
+              Map
+            </Button> */}
           </div>
           <div className="flex gap-2">
             <Input.Search
@@ -958,10 +982,20 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             rowKey="key"
             className="mt-10"
             bordered
+            size="small"
+            style={{
+              backgroundColor: "gray",
+              color: "gray",
+            }}
           />
         )}
 
         {view === "chart" && <div className="mt-10">{renderChart()}</div>}
+        {/* {view === "map" && (
+          <div className="mt-10">
+            <MapComponent data={sampleData} onRegionClick={handleRegionClick} />
+          </div>
+        )} */}
       </div>
     </>
   );

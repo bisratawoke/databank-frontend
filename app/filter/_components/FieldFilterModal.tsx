@@ -16,7 +16,7 @@ const FieldFilterModal = ({
   const [localSearch, setLocalSearch] = useState("");
   const [localSelectedValues, setLocalSelectedValues] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
 
   // Sort and filter values
   const sortedFilteredValues = useMemo(
@@ -95,7 +95,7 @@ const FieldFilterModal = ({
           Cancel
         </Button>,
         <Button key="apply" type="primary" onClick={handleApply}>
-          Apply Filters ({localSelectedValues.length})
+          Confirm ({localSelectedValues.length})
         </Button>,
       ]}
       width="80%"

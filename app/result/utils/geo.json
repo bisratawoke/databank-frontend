@@ -1,0 +1,195 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Addis Ababa",
+        "type": "City Administration"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [38.6877, 9.0056],
+            [38.7234, 9.0056],
+            [38.7234, 8.9699],
+            [38.6877, 8.9699],
+            [38.6877, 9.0056]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Amhara",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [37.5, 10.5],
+            [39.5, 10.5],
+            [39.5, 12.5],
+            [37.5, 12.5],
+            [37.5, 10.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Oromia",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [36.5, 7.5],
+            [40.5, 7.5],
+            [40.5, 10.5],
+            [36.5, 10.5],
+            [36.5, 7.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tigray",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [36.5, 12.5],
+            [39.5, 12.5],
+            [39.5, 14.5],
+            [36.5, 14.5],
+            [36.5, 12.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Southern Nations, Nationalities, and Peoples' Region",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [36.5, 5.5],
+            [38.5, 5.5],
+            [38.5, 7.5],
+            [36.5, 7.5],
+            [36.5, 5.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Somali",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [40.5, 7.5],
+            [42.5, 7.5],
+            [42.5, 10.5],
+            [40.5, 10.5],
+            [40.5, 7.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Afar",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [39.5, 10.5],
+            [42.5, 10.5],
+            [42.5, 12.5],
+            [39.5, 12.5],
+            [39.5, 10.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Benishangul-Gumuz",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [35.5, 10.5],
+            [37.5, 10.5],
+            [37.5, 12.5],
+            [35.5, 12.5],
+            [35.5, 10.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Dire Dawa",
+        "type": "City Administration"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [41.8, 9.6],
+            [42.0, 9.6],
+            [42.0, 9.8],
+            [41.8, 9.8],
+            [41.8, 9.6]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Harari",
+        "type": "Regional State"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [42.0, 9.3],
+            [42.2, 9.3],
+            [42.2, 9.5],
+            [42.0, 9.5],
+            [42.0, 9.3]
+          ]
+        ]
+      }
+    }
+  ]
+}

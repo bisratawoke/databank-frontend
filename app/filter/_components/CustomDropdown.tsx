@@ -1,17 +1,17 @@
-import { Checkbox, Input, Select, Pagination } from "antd";
+import { Collapse, Checkbox, Input, Pagination } from "antd";
 import React, { useState, useMemo } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
+const { Panel } = Collapse;
 
-const CustomDropdown = ({
+const CustomCollapse = ({
   items,
   selectedItems,
   onSelect,
   placeholder,
   disabled = false,
   mode = "single",
-  enableAdvancedFeatures = false, // New prop to control advanced features
+  enableAdvancedFeatures = false,
 }: {
   items: Array<{ _id: string; name: string }>;
   selectedItems: string[];
@@ -22,29 +22,12 @@ const CustomDropdown = ({
   enableAdvancedFeatures?: boolean;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Clear selection
-  const handleClear = () => {
-    onSelect([]);
-  };
-
-  // Advanced sorting and filtering
   const processedItems = useMemo(() => {
     const sortedItems = items
-      .sort((a, b) => {
-        // Try numeric sorting first, fallback to string comparison
-        const numA = Number(a.name);
-        const numB = Number(b.name);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-          return numA - numB;
-        }
-
-        return a.name.localeCompare(b.name);
-      })
+      .sort((a, b) => a.name.localeCompare(b.name))
       .filter((item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -57,26 +40,30 @@ const CustomDropdown = ({
     return processedItems.slice(startIndex, startIndex + pageSize);
   }, [processedItems, currentPage, pageSize]);
 
-  // Check if all items on current page are selected
-  const isCurrentPageAllSelected = useMemo(
-    () =>
-      enableAdvancedFeatures
-        ? paginatedItems.every((item) => selectedItems.includes(item._id))
-        : false,
-    [paginatedItems, selectedItems, enableAdvancedFeatures]
-  );
+  const handleItemSelect = (itemId: string) => {
+    if (mode === "single") {
+      onSelect(selectedItems.includes(itemId) ? [] : [itemId]); // Deselect if already selected
+      return;
+    }
 
-  // Handle page selection toggle
+    const newSelectedItems = selectedItems.includes(itemId)
+      ? selectedItems.filter((id) => id !== itemId) // Remove if selected
+      : [...selectedItems, itemId]; // Add if not selected
+
+    onSelect(newSelectedItems);
+  };
+
   const handleCurrentPageSelectToggle = () => {
     if (mode !== "multiple" || !enableAdvancedFeatures) return;
 
     const currentPageIds = paginatedItems.map((item) => item._id);
+    const isCurrentPageAllSelected = paginatedItems.every((item) =>
+      selectedItems.includes(item._id)
+    );
 
     if (isCurrentPageAllSelected) {
-      // Remove current page items from selection
       onSelect(selectedItems.filter((id) => !currentPageIds.includes(id)));
     } else {
-      // Add current page items to selection, avoiding duplicates
       const newSelectedItems = new Set([
         ...selectedItems,
         ...currentPageIds.filter((id) => !selectedItems.includes(id)),
@@ -85,123 +72,107 @@ const CustomDropdown = ({
     }
   };
 
-  // Handle individual item selection in multiple mode
-  //   const handleItemSelect = (itemId: string) => {
-  //     if (mode === "single") {
-  //       onSelect([itemId]);
-  //       return;
-  //     }
-
-  //     // Multiple mode
-  //     const newSelectedItems = selectedItems.includes(itemId)
-  //       ? selectedItems.filter((id) => id !== itemId)
-  //       : [...selectedItems, itemId];
-
-  //     onSelect(newSelectedItems);
-  //   };
-
-  const handleItemSelect = (itemId: string) => {
-    if (mode === "single") {
-      // For single mode, directly set the selected item
-      onSelect([itemId]);
-      setOpen(false); // Close dropdown after selection
-      return;
-    }
-
-    // Multiple mode logic remains the same
-    const newSelectedItems = selectedItems.includes(itemId)
-      ? selectedItems.filter((id) => id !== itemId)
-      : [...selectedItems, itemId];
-
-    onSelect(newSelectedItems);
-  };
-
   return (
-    <Select
-      mode={mode}
-      style={{ width: "100%" }}
-      placeholder={placeholder}
-      disabled={disabled}
-      open={open}
-      onDropdownVisibleChange={(visible) => setOpen(visible)}
-      value={selectedItems}
-      onChange={onSelect}
-      allowClear
-      dropdownRender={(menu) => (
-        <div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 16px",
+    <Collapse disabled={disabled} defaultActiveKey={[]}>
+      <Panel
+        header={
+          selectedItems.length > 0
+            ? items
+                .filter((item) => selectedItems.includes(item._id))
+                .map((item) => item.name)
+                .join(", ")
+            : placeholder
+        }
+        key="1"
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 8,
+          }}
+        >
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
             }}
-          >
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page on search
-              }}
-              style={{ width: "calc(100% - 150px)", marginRight: 8 }}
-            />
-            {mode === "multiple" && enableAdvancedFeatures && (
-              <Checkbox
-                indeterminate={
-                  selectedItems.length > 0 &&
-                  selectedItems.length < paginatedItems.length
-                }
-                checked={isCurrentPageAllSelected}
-                onChange={handleCurrentPageSelectToggle}
-              >
-                Select Page
-              </Checkbox>
-            )}
-          </div>
+            style={{ width: "calc(100% - 150px)", marginRight: 8 }}
+          />
+          {/* {mode === "single" && enableAdvancedFeatures && (
+            <Checkbox
+              indeterminate={
+                selectedItems.length > 0 &&
+                selectedItems.length < paginatedItems.length
+              }
+              checked={paginatedItems.every((item) =>
+                selectedItems.includes(item._id)
+              )}
+              onChange={handleCurrentPageSelectToggle}
+            >
+              Select Page
+            </Checkbox>
+          )} */}
+        </div>
 
-          {menu}
-
-          {enableAdvancedFeatures && (
+        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+          {paginatedItems.map((item) => (
             <div
+              key={item._id}
               style={{
                 display: "flex",
-                justifyContent: "center",
-                padding: "8px 16px",
+                alignItems: "center",
+                padding: "4px 0",
+                backgroundColor: selectedItems.includes(item._id)
+                  ? "rgba(24, 144, 255, 0.1)"
+                  : "transparent",
+                borderRadius: "4px",
               }}
             >
-              <Pagination
-                current={currentPage}
-                total={processedItems.length}
-                pageSize={pageSize}
-                onChange={(page) => setCurrentPage(page)}
-                showSizeChanger
-                pageSizeOptions={[10, 50, 100, 200, 500]}
-                onShowSizeChange={(_, size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
+              <Checkbox
+                disabled={mode === "single"}
+                checked={selectedItems.includes(item._id)}
+                style={{ marginRight: 8 }}
               />
+              <span
+                style={{
+                  cursor: "pointer",
+                  flex: 1,
+                  color: selectedItems.includes(item._id) ? "#1890ff" : "#000",
+                }}
+                onClick={() => handleItemSelect(item._id)}
+              >
+                {item.name}
+              </span>
             </div>
-          )}
+          ))}
         </div>
-      )}
-    >
-      {paginatedItems.map((item) => (
-        <Option key={item._id} value={item._id}>
-          {mode === "multiple" && (
-            <Checkbox
-              checked={selectedItems.includes(item._id)}
-              onChange={() => handleItemSelect(item._id)}
-              style={{ marginRight: 8 }}
+
+        {enableAdvancedFeatures && (
+          <div
+            style={{ display: "flex", justifyContent: "center", marginTop: 8 }}
+          >
+            <Pagination
+              current={currentPage}
+              total={processedItems.length}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger
+              pageSizeOptions={[10, 50, 100, 200, 500]}
+              onShowSizeChange={(_, size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
             />
-          )}
-          {item.name}
-        </Option>
-      ))}
-    </Select>
+          </div>
+        )}
+      </Panel>
+    </Collapse>
   );
 };
 
-export default CustomDropdown;
+export default CustomCollapse;
