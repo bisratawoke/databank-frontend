@@ -6,7 +6,11 @@ const SinglePublicationDesciptionContainer: FC<{ description: string }> = ({
 }) => (
   <div className="flex flex-col gap-2">
     <span className="font-bold text-[24px]">Description</span>
-    <span className="text-[16px]">{description}</span>
+    <div className="flex flex-wrap overflow-hidden">
+      <span className="text-[16px] flex flex-wrap overflow-hidden break-words">
+        {description}
+      </span>
+    </div>
   </div>
 );
 
