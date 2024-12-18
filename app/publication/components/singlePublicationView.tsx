@@ -67,22 +67,16 @@ export default function SinglePublicationView({
           <div className="max-w-3xl mx-auto  bg-white rounded-lg ">
             <div className="mt-6 mb-4">
               <div className="">
-                {filePreview ? (
-                  coverImageLink ? (
-                    <Image
-                      src={`http://${coverImageLink}`}
-                      alt="something"
-                      width={238}
-                      height={500}
-                    />
-                  ) : (
-                    <div className="text-gray-600">
-                      Preview not available for this file type.
-                    </div>
-                  )
+                {coverImageLink ? (
+                  <Image
+                    src={`http://${coverImageLink}`}
+                    alt="something"
+                    width={238}
+                    height={325}
+                  />
                 ) : (
                   <div className="text-gray-600">
-                    Preview not available for this file.
+                    Preview not available for this publication.
                   </div>
                 )}
               </div>
