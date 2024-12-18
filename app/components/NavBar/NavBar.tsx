@@ -251,7 +251,7 @@ const NavBar: React.FC = () => {
           </Col>
 
           {/* Search Input */}
-          <Col xs={8} lg={6} className="hidden lg:block">
+          {/* <Col xs={8} lg={6} className="hidden lg:block">
             <Search
               placeholder="Search..."
               onSearch={onSearch}
@@ -270,7 +270,7 @@ const NavBar: React.FC = () => {
                 </Button>
               }
             />
-          </Col>
+          </Col> */}
 
           {/* User/Social Section */}
           <Col
