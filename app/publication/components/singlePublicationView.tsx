@@ -22,37 +22,6 @@ export default function SinglePublicationView({
     price,
     coverImageLink,
   } = publication;
-  const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<string>("");
-
-  useEffect(() => {
-    const fileExtension = fileName.split(".").pop()?.toLowerCase() || "";
-    const mimeType = metadata.type || "";
-
-    setFileType(fileExtension);
-
-    const fetchFilePreview = async () => {
-      try {
-        const response = await fetch(`http://${permanentLink}`);
-        const blob = await response.blob();
-
-        if (mimeType.startsWith("image/")) {
-          setFilePreview(URL.createObjectURL(blob));
-        } else if (mimeType === "application/pdf" || fileExtension === "pdf") {
-          setFilePreview(URL.createObjectURL(blob));
-        } else if (mimeType.startsWith("text/") || fileExtension === "txt") {
-          const text = await blob.text();
-          setFilePreview(text);
-        } else {
-          setFilePreview(null);
-        }
-      } catch (error) {
-        console.error("Error fetching file:", error);
-      }
-    };
-
-    fetchFilePreview();
-  }, [permanentLink, fileName, metadata.type]);
 
   return (
     <div className="">

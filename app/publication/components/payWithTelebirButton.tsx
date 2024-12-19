@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import { payWithTelebirr } from "../actions/payWithTelebir";
-import Spin from "antd";
+
 export default function PayWithTelebir({
   price,
   title,
@@ -18,7 +18,7 @@ export default function PayWithTelebir({
   const startPayment = async () => {
     const payload = {
       bill: {
-        referenceNumber: `${Math.floor(Math.random())}`,
+        referenceNumber: `${new Date().getTime()}`,
         title: title,
         amount: `${price}`,
         orderId: orderId,
