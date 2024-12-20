@@ -73,7 +73,7 @@ const CustomCollapse = ({
   };
 
   return (
-    <Collapse disabled={disabled} defaultActiveKey={[]}>
+    <Collapse disabled={disabled} defaultActiveKey={[1]}>
       <Panel
         header={
           selectedItems.length > 0
@@ -83,6 +83,10 @@ const CustomCollapse = ({
                 .join(", ")
             : placeholder
         }
+        // if placeholder apply not stile if seleectedItem add blue background
+        style={{
+          backgroundColor: selectedItems.length > 0 ? "#ADD8E6" : "",
+        }}
         key="1"
       >
         <div

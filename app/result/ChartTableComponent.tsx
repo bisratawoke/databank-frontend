@@ -495,14 +495,14 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
     const transformData = (data: DataItem[], fields: any[]) => {
       const groupedByRow: { [key: string]: any } = {};
 
-      console.log("groupedByRow: ", groupedByRow);
+      // console.log("groupedByRow: ", groupedByRow);
 
-      console.log("data: ", data);
-      console.log("fields: ", fields);
+      // console.log("data: ", data);
+      // console.log("fields: ", fields);
 
       // Group the data by row
       data.forEach((item) => {
-        const fieldName = trimName(item.field.name);
+        const fieldName = item.field.name;
         const value = removeLeadingZeros(item.value);
         const dataId = item._id;
 
@@ -558,7 +558,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
         [] as ProcessedData[]
       );
 
-      console.log("Filtered and Transformed Data: ", transformedData);
+      // console.log("Filtered and Transformed Data: ", transformedData);
       return transformedData;
     };
 
@@ -920,12 +920,12 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             >
               Chart
             </Button>
-            {/* <Button
-              type={view === "mamp" ? "primary" : "default"}
+            <Button
+              type={view === "map" ? "primary" : "default"}
               onClick={() => setView("map")}
             >
               Map
-            </Button> */}
+            </Button>
           </div>
           <div className="flex gap-2">
             <Input.Search
@@ -958,6 +958,7 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
               content={ChartConfigPopover}
               title="Chart Configuration"
               trigger="click"
+              placement="bottom"
             >
               <Button icon={<SettingOutlined />}>Configure Chart</Button>
             </Popover>
@@ -983,19 +984,15 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             className="mt-10"
             bordered
             size="small"
-            style={{
-              backgroundColor: "gray",
-              color: "gray",
-            }}
           />
         )}
 
         {view === "chart" && <div className="mt-10">{renderChart()}</div>}
-        {/* {view === "map" && (
+        {view === "map" && (
           <div className="mt-10">
-            <MapComponent data={sampleData} onRegionClick={handleRegionClick} />
+            <MapComponent onRegionClick={handleRegionClick} />
           </div>
-        )} */}
+        )}
       </div>
     </>
   );

@@ -369,6 +369,12 @@ const FilteredReportPage: React.FC = () => {
   }
 
   return (
+    // <>
+    //   <div className="flex justify-center py-2 bg-gray-100 shadow-md rounded-lg">
+    //     <h3 className="text-2xl font-bold text-gray-700 tracking-wide">
+    //       Reports & Data
+    //     </h3>
+    //   </div>
     <div className="container flex">
       {/* Collapsible Sidebar */}
       <div
@@ -690,6 +696,7 @@ const FilteredReportPage: React.FC = () => {
         />
       )}
     </div>
+    // </>
   );
 };
 
