@@ -59,6 +59,7 @@ export default function SinglePublicationView({
                   title={metadata.title}
                   referenceNumber={""}
                   orderId={"123"}
+                  link={permanentLink}
                 />
               )}
             </div>

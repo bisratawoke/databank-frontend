@@ -1,29 +1,34 @@
 import { Button } from "antd";
 import { payWithTelebirr } from "../actions/payWithTelebir";
-
+import { generatePaymentInfo } from "../actions/generatePaymentInfo";
 export default function PayWithTelebir({
   price,
   title,
   referenceNumber,
   orderId,
+  link,
 }: {
   price: string;
   title: string;
   referenceNumber: string;
   orderId: string;
+  link: string;
 }) {
   function anchorOpen(link: string) {
     window.open(link);
   }
   const startPayment = async () => {
+    const { message } = await generatePaymentInfo();
+    console.log(message);
+
     const payload = {
       bill: {
-        referenceNumber: `${new Date().getTime()}`,
+        referenceNumber: `${Math.floor(Math.random())}`,
         title: title,
         amount: `${price}`,
-        orderId: orderId,
+        orderId: String(Math.floor(Math.random())),
         timestamp: new Date().getTime(),
-        redirect_url: "http://localhost:3000/paymenttest/inner",
+        redirect_url: `http://localhost:3000/paymenttest/resut?link=${link}`,
       },
     };
     const result = await payWithTelebirr(payload);

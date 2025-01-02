@@ -2,10 +2,17 @@
 
 import { Button } from "antd";
 
-export default function ContinueButton() {
+export default function ContinueButton({ link }: { link: string }) {
   return (
-    <Button size="large" className="bg-white w-[132px] h-[42px]">
-      <span className="text-[18px] text-black">Continue</span>
+    <Button
+      iconPosition="start"
+      size="large"
+      onClick={(e) => {
+        window.open(`http://${link}`);
+      }}
+      className="w-[100%] bg-white"
+    >
+      Download
     </Button>
   );
 }

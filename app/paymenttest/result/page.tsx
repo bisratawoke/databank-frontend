@@ -5,12 +5,12 @@ export default async function page({
 }: {
   searchParams: Promise<Record<string, any>>;
 }) {
-  const { tradeSucess } = await searchParams;
+  const { tradeSucess, link } = await searchParams;
 
   if (tradeSucess == "PAYMENT_SUCESS")
     return (
       <div className="flex items-center justify-center pt-10">
-        <PaymentSucessfullNotification />
+        <PaymentSucessfullNotification link={link} />
       </div>
     );
   else return <>failed</>;

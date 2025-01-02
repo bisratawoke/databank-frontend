@@ -2,7 +2,11 @@ import TIckIcon from "@/public/images/tickIcon.svg";
 import Image from "next/image";
 import ContinueButton from "./continueButton";
 
-export default function PaymentSucessfullNotification() {
+export default function PaymentSucessfullNotification({
+  link,
+}: {
+  link: string;
+}) {
   return (
     <div className="rounded-md w-[576px] min-h-[429px] bg-[#2B5BA8] flex flex-col items-center justify-center gap-5">
       <Image src={TIckIcon} width={52} height={52} alt="sucessicon" />
@@ -15,8 +19,9 @@ export default function PaymentSucessfullNotification() {
           Your Payment Has Been Successfully Completed
         </span>
       </div>
-
-      <ContinueButton />
+      <div className="flex items-center">
+        <ContinueButton link={link} />
+      </div>
     </div>
   );
 }

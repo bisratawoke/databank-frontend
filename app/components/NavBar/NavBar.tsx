@@ -8,7 +8,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import React from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import UserProfileDropdown from "./ProfileMenu";
-
+import { usePathname } from "next/navigation";
 const { Panel } = Collapse;
 const { Search } = Input;
 
@@ -233,25 +233,29 @@ const NavBar: React.FC = () => {
         </span>
       );
     });
+  const pathname = usePathname();
 
-  return (
-    <>
-      <div className="bg-navbarbackground w-full px-[5%] md:px-[10%] lg:px-[12%] xl:px-[16%]">
-        <Row justify="space-between" align="middle" className="py-2">
-          {/* Logo Section */}
-          <Col xs={12} lg={4}>
-            <Image
-              src="/images/ess-logo-desc-1.svg"
-              width={208}
-              height={66}
-              alt="Logo"
-              className="min-h-[42] min-w-[208px] sm:w-56 md:w-64 lg:w-64 xl:w-80"
-              priority
-            />
-          </Col>
+  if (pathname.startsWith("/auth")) {
+    return <></>;
+  } else
+    return (
+      <>
+        <div className="bg-navbarbackground w-full px-[5%] md:px-[10%] lg:px-[12%] xl:px-[16%]">
+          <Row justify="space-between" align="middle" className="py-2">
+            {/* Logo Section */}
+            <Col xs={12} lg={4}>
+              <Image
+                src="/images/ess-logo-desc-1.svg"
+                width={208}
+                height={66}
+                alt="Logo"
+                className="min-h-[42] min-w-[208px] sm:w-56 md:w-64 lg:w-64 xl:w-80"
+                priority
+              />
+            </Col>
 
-          {/* Search Input */}
-          {/* <Col xs={8} lg={6} className="hidden lg:block">
+            {/* Search Input */}
+            {/* <Col xs={8} lg={6} className="hidden lg:block">
             <Search
               placeholder="Search..."
               onSearch={onSearch}
@@ -272,14 +276,14 @@ const NavBar: React.FC = () => {
             />
           </Col> */}
 
-          {/* User/Social Section */}
-          <Col
-            xs={4}
-            lg={4}
-            className="text-right flex justify-end items-center space-x-2"
-          >
-            {/* Social Icons */}
-            {/* <div className="hidden lg:flex space-x-2 mr-4">
+            {/* User/Social Section */}
+            <Col
+              xs={4}
+              lg={4}
+              className="text-right flex justify-end items-center space-x-2"
+            >
+              {/* Social Icons */}
+              {/* <div className="hidden lg:flex space-x-2 mr-4">
               <Link href="https://facebook.com" passHref>
                 <FaFacebook className="rounded-full bg-[#224986] p-2 text-2xl text-white transition-colors duration-300 hover:bg-[#BB9271] md:text-3xl" />
               </Link>
@@ -288,51 +292,52 @@ const NavBar: React.FC = () => {
               </Link>
             </div> */}
 
-            {/* User Authentication */}
-            {session ? (
-              <div className="flex justify-end">
-                <UserProfileDropdown session={session} />
-              </div>
-            ) : (
+              {/* User Authentication */}
+              {session ? (
+                <div className="flex justify-end">
+                  <UserProfileDropdown session={session} />
+                </div>
+              ) : (
+                <Button
+                  className="bg-[#BB9271] text-white hover:bg-[#a47c61]"
+                  onClick={() => signIn()}
+                >
+                  Login
+                </Button>
+              )}
+            </Col>
+
+            {/* Mobile Menu Toggle */}
+            <Col className="lg:hidden">
               <Button
-                className="bg-[#BB9271] text-white hover:bg-[#a47c61]"
-                onClick={() => signIn()}
-              >
-                Login
-              </Button>
-            )}
-          </Col>
+                type="text"
+                icon={<MenuOutlined className="text-white" />}
+                onClick={showDrawer}
+                style={{ color: "gold" }}
+              />
+            </Col>
+          </Row>
+        </div>
+        {!pathname.startsWith("/user/profile") && (
+          <nav className="bg-[#22407F] w-full px-[5%] md:px-[10%] lg:px-[15%] xl:px-[20%]">
+            {/* Desktop Menu */}
+            <Row justify="center" className="hidden lg:flex py-2">
+              {renderMenuItems(MenuItems)}
+            </Row>
 
-          {/* Mobile Menu Toggle */}
-          <Col className="lg:hidden">
-            <Button
-              type="text"
-              icon={<MenuOutlined className="text-white" />}
-              onClick={showDrawer}
-              style={{ color: "gold" }}
-            />
-          </Col>
-        </Row>
-      </div>
-
-      <nav className="bg-[#22407F] w-full px-[5%] md:px-[10%] lg:px-[15%] xl:px-[20%]">
-        {/* Desktop Menu */}
-        <Row justify="center" className="hidden lg:flex py-2">
-          {renderMenuItems(MenuItems)}
-        </Row>
-
-        {/* Mobile Drawer Menu */}
-        <Drawer
-          title="Menu"
-          placement="right"
-          onClose={closeDrawer}
-          open={visible}
-        >
-          {renderMobileMenu(MenuItems)}
-        </Drawer>
-      </nav>
-    </>
-  );
+            {/* Mobile Drawer Menu */}
+            <Drawer
+              title="Menu"
+              placement="right"
+              onClose={closeDrawer}
+              open={visible}
+            >
+              {renderMobileMenu(MenuItems)}
+            </Drawer>
+          </nav>
+        )}
+      </>
+    );
 };
 
 export default NavBar;

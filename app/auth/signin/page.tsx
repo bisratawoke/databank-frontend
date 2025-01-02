@@ -27,7 +27,6 @@ export default function SigninPage() {
         password: values.password,
       });
 
-      // Detailed error handling
       if (res?.error) {
         const errorMsg =
           res.error === "CredentialsSignin"
@@ -40,7 +39,6 @@ export default function SigninPage() {
         return;
       }
 
-      // Successful login
       message.success("Successfully logged in!");
       router.push("/");
     } catch (error: unknown) {
@@ -57,87 +55,110 @@ export default function SigninPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md shadow-lg rounded-lg p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Login</h2>
-          <p className="text-gray-600">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/auth/register"
-              className="text-blue-600 hover:underline"
-            >
-              Register
-            </Link>
-          </p>
-        </div>
+    <div className="h-screen w-full relative">
+      {/* Top half */}
+      <div
+        className="absolute top-0 left-0 w-full h-1/2"
+        style={{ backgroundColor: "#1E50A0" }}
+      ></div>
 
-        {errorMessage && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-            {errorMessage}
-          </div>
-        )}
+      {/* Bottom half */}
+      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-white"></div>
 
-        <Form<LoginFormValues>
-          name="login"
-          onFinish={onFinish}
-          layout="vertical"
-          className="space-y-4"
+      {/* Centered Form */}
+      <div className="absolute inset-0 flex justify-center items-center">
+        <Card
+          className="shadow-lg rounded-lg p-6"
+          style={{
+            width: "100%",
+            maxWidth: "400px",
+            position: "relative",
+            zIndex: 10,
+          }}
         >
-          <Form.Item
-            label="Email or Username"
-            name="username"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your email or username!",
-              },
-            ]}
-          >
-            <Input
-              placeholder="Enter your email or username"
-              className="h-10"
-            />
-          </Form.Item>
+          <div className="mb-6 flex justify-between items-center">
+            <div className="flex flex-col">
+              <span className="text-[12px]">Welcome to ESS</span>
+              <span className="text-[16px] font-bold">Sign in</span>
+            </div>
+            <div className="flex flex-col">
+              <span>No Account?</span>
+              <Link
+                href="/auth/register"
+                className="text-blue-600 hover:underline"
+              >
+                Signup
+              </Link>
+            </div>
+          </div>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your password!",
-              },
-            ]}
-          >
-            <Input.Password
-              placeholder="Enter your password"
-              className="h-10"
-            />
-          </Form.Item>
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+              {errorMessage}
+            </div>
+          )}
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full h-10"
-              loading={isLoading}
-              disabled={isLoading}
+          <Form<LoginFormValues>
+            name="login"
+            onFinish={onFinish}
+            layout="vertical"
+            className="space-y-4"
+          >
+            <Form.Item
+              label="Email or Username"
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email or username!",
+                },
+              ]}
             >
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
+              <Input
+                placeholder="Enter your email or username"
+                className="h-10"
+              />
+            </Form.Item>
 
-        <div className="mt-4 text-center">
-          <Link
-            href="/auth/forgot-password"
-            className="text-blue-600 hover:underline text-sm"
-          >
-            Forgot Password?
-          </Link>
-        </div>
-      </Card>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your password!",
+                },
+              ]}
+            >
+              <Input.Password
+                placeholder="Enter your password"
+                className="h-10"
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full h-10"
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div className="mt-4 text-center">
+            <Link
+              href="/auth/forgot-password"
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
