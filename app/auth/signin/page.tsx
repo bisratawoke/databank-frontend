@@ -104,35 +104,19 @@ export default function SigninPage() {
             layout="vertical"
             className="space-y-4"
           >
-            <Form.Item
-              label="Email or Username"
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your email or username!",
-                },
-              ]}
-            >
+            <Form.Item label="Email or Username" name="username">
               <Input
                 placeholder="Enter your email or username"
                 className="h-10"
+                size="large"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Password"
-              name="password"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your password!",
-                },
-              ]}
-            >
+            <Form.Item label="Password" name="password">
               <Input.Password
                 placeholder="Enter your password"
                 className="h-10"
+                size="large"
               />
             </Form.Item>
 
@@ -143,20 +127,21 @@ export default function SigninPage() {
                 className="w-full h-10"
                 loading={isLoading}
                 disabled={isLoading}
+                size="large"
               >
-                Login
+                Sign In
               </Button>
             </Form.Item>
           </Form>
 
-          <div className="mt-4 text-center">
+          {/* <div className="mt-4 text-center">
             <Link
               href="/auth/forgot-password"
               className="text-blue-600 hover:underline text-sm"
             >
               Forgot Password?
             </Link>
-          </div>
+          </div> */}
         </Card>
       </div>
     </div>

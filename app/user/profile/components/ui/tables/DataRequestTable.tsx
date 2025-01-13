@@ -4,6 +4,8 @@ import React from "react";
 import { Table, Tag } from "antd";
 import { PublicationRequest } from "../../../types/IPublicationRequest";
 import DownloadFileButton from "../buttons/DownloadFileButton";
+import PayWithTelebir from "@/app/publication/components/payWithTelebirButton";
+import Pay from "../buttons/Pay";
 
 const PublicationRequestsTable = ({ data }: { data: PublicationRequest[] }) => {
   const columns = [
@@ -58,6 +60,16 @@ const PublicationRequestsTable = ({ data }: { data: PublicationRequest[] }) => {
         <>
           {record.status == "Final Approved" && (
             <DownloadFileButton fileName={record.fileName} />
+          )}
+          {record.status == "Payment pending" && (
+            <Pay
+              price={record.price}
+              title={"Payment for publication request"}
+              referenceNumber={""}
+              orderId={""}
+              link={""}
+              publicationRequestId={record._id}
+            />
           )}
         </>
       ),

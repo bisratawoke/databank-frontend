@@ -145,7 +145,11 @@ export default function RegisterPage() {
               },
             ]}
           >
-            <Select className="h-[48px]">
+            <Select
+              className="h-[48px]"
+              size="large"
+              placeholder="Select user type"
+            >
               {Object.entries(UserType).map(([key, value]) => (
                 <Select.Option key={value} value={value}>
                   {key}
@@ -212,13 +216,17 @@ export default function RegisterPage() {
           </Form.Item>
 
           <Form.Item>
+            
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full h-[48px]"
+              className="w-full h-[48px] bg-[#2B5BA8]"
               loading={isLoading}
               disabled={isLoading}
               size="large"
+              style={{
+                backgroundColor: "#2B5BA8",
+              }}
             >
               Sign up
             </Button>

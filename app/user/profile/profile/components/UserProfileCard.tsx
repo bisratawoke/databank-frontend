@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Card, Avatar, Button, Form, Input, Col, Row, Grid } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import React from "react";
+import { Form } from "antd";
 import EditUserForm from "./EditUserForm";
 
 const UserProfileCard: React.FC<{

@@ -4,7 +4,7 @@ import React from "react";
 import { Form, Input, Button, Select, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import createPublicationRequest from "../actions/createPublicationRequest";
-
+import { useRouter } from "next/navigation";
 const { Option } = Select;
 
 const ADMIN_UNITS = [
@@ -26,7 +26,7 @@ interface Props {
 
 const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
   const [form] = Form.useForm();
-
+  const router = useRouter();
   const handleSubmit = async (values: any) => {
     try {
       const formData = new FormData();
@@ -53,6 +53,7 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
 
       if (response.status === 201) {
         message.success("Publication request created successfully!");
+        router.push("/user/profile/dashboard");
         // form.resetFields();
       } else {
         console.log("========== in handle submit =================");
