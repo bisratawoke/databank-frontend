@@ -1,5 +1,7 @@
 "use server";
 import axios from "axios";
+import { getSession } from "@/lib/auth";
+import { BACKEND_URL } from "@/constants/constants";
 type BillType = {
   referenceNumber: string;
   title: string;
@@ -7,8 +9,6 @@ type BillType = {
   orderId: string;
   timestamp: number;
 };
-
-const redirect_url = "http://localhost:3000/paymenttest/inner";
 
 export async function payWithTelebirr(payload) {
   console.log(payload);
@@ -22,7 +22,7 @@ export async function payWithTelebirr(payload) {
     trans_currency: "ETB",
     merchant_order_id: bill.orderId,
     notify_url: bill.redirect_url,
-    redirect_url: redirect_url,
+    redirect_url: bill.redirect_url,
     timestamp: bill.timestamp,
   };
 
@@ -34,6 +34,25 @@ export async function payWithTelebirr(payload) {
 
     console.log("============== in result =================");
     console.log(response.data);
+
+    return { ok: true, message: response.data };
+  } catch (error) {
+    console.log(error);
+    return { ok: false, message: "something went wrong" };
+  }
+}
+
+export async function UpdatedPublicationRequestPaymentStatus({
+  payload,
+  publicationRequestId,
+}: any) {
+  try {
+    const session: any = await getSession();
+
+    const response = await axios.put(
+      `${BACKEND_URL}/publication-payments/${publicationRequestId}`,
+      payload
+    );
 
     return { ok: true, message: response.data };
   } catch (error) {
