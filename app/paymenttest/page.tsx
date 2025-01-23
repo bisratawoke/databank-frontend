@@ -27,7 +27,6 @@ export default function paytest() {
     };
     const result = await payWithTelebirr(payload);
 
-    alert(result.message);
     anchorOpen(result.message);
   };
   return <button onClick={async () => await startPayment()}>paybaby</button>;
