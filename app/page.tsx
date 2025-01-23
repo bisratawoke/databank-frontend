@@ -1,13 +1,10 @@
-// app/page.tsx
+import DepartmentsPage from "./departments/page";
 
-import DepartmentsLists from "./components/DepartmentsLists";
-import InfoSection from "./components/InfoSection/InfoSection";
-
-// Fetching data on the server side in the app directory
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const fetchDepartments = async () => {
-  const res = await fetch(`${API_URL}/departments`, {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fetchDepartments = async (): Promise<any[]> => {
+  const res = await fetch(`${API_URL}/departments/all`, {
     cache: "no-store", // To avoid caching during development
   });
   if (!res.ok) {
@@ -17,12 +14,15 @@ const fetchDepartments = async () => {
 };
 
 export default async function Home() {
-  const departments = await fetchDepartments();
+  const departmentsData = await fetchDepartments();
+  const departments = departmentsData.departments;
 
   return (
     <>
-      <InfoSection />
-      <DepartmentsLists departments={departments} />
+      {/* <InfoSection /> */}
+      {/* <DepartmentsLists departments={departments} /> */}
+      {/* <HomePage /> */}
+      <DepartmentsPage departments={departments} />
     </>
   );
 }

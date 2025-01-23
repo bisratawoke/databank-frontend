@@ -139,7 +139,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: userDetails }) => {
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
-      window.location.href = "/login";
+      window.location.href = "/auth/signin";
     },
   });
 

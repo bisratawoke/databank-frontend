@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Form, Input, Button, Card, message } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,8 +13,14 @@ interface LoginFormValues {
 
 export default function SigninPage() {
   const router = useRouter();
+  // if session then navigate to /
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  if (session?.accessToken) {
+    router.push("/");
+  }
 
   const onFinish = async (values: LoginFormValues) => {
     setIsLoading(true);

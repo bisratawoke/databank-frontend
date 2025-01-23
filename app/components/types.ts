@@ -1,4 +1,3 @@
-// app/types.ts
 
 export interface Report {
   _id: string;
