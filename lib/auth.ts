@@ -18,8 +18,6 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req: any) {
-        console.log("=========== in authorizations baby ============");
-        console.log(credentials);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/portal-users/login`,
           {
@@ -32,10 +30,6 @@ export const authOptions: AuthOptions = {
           }
         );
         const response = await res.json();
-
-        console.log("========in here baby ===========");
-        console.log(response.user);
-        console.log(response);
 
         if (res.ok && response.user && response.access_token) {
           return {

@@ -14,11 +14,10 @@ const ChangePasswordForm = ({ data }: any) => {
       )
     );
 
-    console.log("Sanitized Form Values:", sanitizedValues);
     const result = await EditUserInfo({
       payload: { password: sanitizedValues.newPassword, _id: data._id },
     });
-    console.log(result);
+
     message.success("Succefully updated profile");
   };
 

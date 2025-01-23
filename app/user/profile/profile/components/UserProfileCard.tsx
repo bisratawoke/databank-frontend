@@ -8,10 +8,6 @@ const UserProfileCard: React.FC<{
 }> = ({ profileInfo: data }) => {
   const [form] = Form.useForm();
 
-  const handleFormSubmit = (values: any) => {
-    console.log("Form Values:", values);
-  };
-
   return (
     <div className="grid grid-cols-12 h-[60vh]">
       {/* <div className="col-start-1 col-end-3 bg-red-500"></div> */}

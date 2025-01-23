@@ -11,8 +11,6 @@ export type BillType = {
 const redirect_url = "http://localhost:3000/paymenttest/inner";
 
 export async function payWithTelebirr(payload: { bill: BillType }) {
-  console.log(payload);
-
   const { bill } = payload;
   const investment_amount = bill.amount.split(".")[0];
   const body = {
@@ -32,12 +30,8 @@ export async function payWithTelebirr(payload: { bill: BillType }) {
       body
     );
 
-    console.log("============== in result =================");
-    console.log(response.data);
-
     return { ok: true, message: response.data };
   } catch (error) {
-    console.log(error);
     return { ok: false, message: "something went wrong" };
   }
 }

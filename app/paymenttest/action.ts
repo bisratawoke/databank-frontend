@@ -11,8 +11,6 @@ type BillType = {
 };
 
 export async function payWithTelebirr(payload) {
-  console.log(payload);
-
   const { bill } = payload;
   const investment_amount = bill.amount.split(".")[0];
   const body = {

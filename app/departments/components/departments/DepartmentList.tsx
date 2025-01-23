@@ -23,7 +23,6 @@ interface DepartmentsListProps {
 }
 
 const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
-  // console.log("fetched departments: ", departments);
   const router = useRouter();
   const { data: session } = useSession();
   const [selectedFilters, setSelectedFilters] = useState({
@@ -234,10 +233,6 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
     return result;
   }, [departments, selectedFilters, searchTerm]);
 
-  // console.log("departments: ", departments);
-
-  // console.log("filteredDepartments: ", filteredDepartments);
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredDepartments.slice(

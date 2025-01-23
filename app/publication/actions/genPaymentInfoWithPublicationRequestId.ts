@@ -24,7 +24,6 @@ export async function genPaymentInfoWithPublicationRequestId({
     );
     return { ok: true, message: response.data };
   } catch (error) {
-    console.log(error);
     return { ok: false, message: "something went wrong" };
   }
 }

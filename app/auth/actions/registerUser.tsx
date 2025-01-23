@@ -2,7 +2,6 @@
 import { BACKEND_URL } from "@/constants/constants";
 
 export default async function registerUser(payload) {
-  console.log("payload: ", payload);
   const res = await fetch(`${BACKEND_URL}/portal-users/register`, {
     headers: {
       "content-type": "application/json",

@@ -12,7 +12,6 @@ import { usePathname } from "next/navigation";
 const { Panel } = Collapse;
 const { Search } = Input;
 
-// Define the type for menu items
 interface MenuItem {
   name: string;
   link?: string;
@@ -105,10 +104,6 @@ const NavBar: React.FC = () => {
 
   const closeDrawer = (): void => {
     setVisible(false);
-  };
-
-  const onSearch = (value: string): void => {
-    console.log(value);
   };
 
   const renderMenuItems = (items: MenuItem[]): JSX.Element[] =>

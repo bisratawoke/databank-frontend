@@ -18,9 +18,6 @@ export default async function EditUserInfo({
   });
   const res = await result.json();
 
-  console.log("=============== in edit user info ===============");
-  console.log(result.status);
-  console.log(res);
   return {
     status: result.status,
     body: res,

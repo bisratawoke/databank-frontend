@@ -52,7 +52,6 @@ const FieldFilterModal = ({
   );
 
   const handleApply = () => {
-    console.log("localSelectedValues");
     onApply(localSelectedValues);
   };
 

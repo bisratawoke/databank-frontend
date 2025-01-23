@@ -6,7 +6,6 @@ const SinglePublicationPublishedDate: FC<{ publishedDate: string }> = ({
 }: {
   publishedDate: string;
 }) => {
-  console.log(formatDate(publishedDate));
   return (
     <div>
       <span className="text-[#0A7ACC] font-bold">Published Date:</span>{" "}

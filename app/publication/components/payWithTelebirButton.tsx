@@ -19,7 +19,6 @@ export default function PayWithTelebir({
   }
   const startPayment = async () => {
     const { message } = await generatePaymentInfo();
-    console.log(message);
 
     const payload = {
       bill: {

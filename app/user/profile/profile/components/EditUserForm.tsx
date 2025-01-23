@@ -22,11 +22,9 @@ const EditUserForm = ({ data }: any) => {
       )
     );
 
-    console.log("Sanitized Form Values:", sanitizedValues);
     const result = await EditUserInfo({
       payload: { ...sanitizedValues, _id: profileInfo._id },
     });
-    console.log(result);
     message.success("Succefully updated profile");
   };
 

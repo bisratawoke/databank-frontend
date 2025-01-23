@@ -56,9 +56,6 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
         router.push("/user/profile/dashboard");
         // form.resetFields();
       } else {
-        console.log("========== in handle submit =================");
-        console.log(response.status);
-        console.log(response.body);
         message.error(
           `Failed to create publication request: ${
             response.body || "Unknown error"

@@ -7,8 +7,7 @@ import { getSession } from "@/lib/auth";
 export async function generatePaymentInfo() {
   try {
     const session: any = await getSession();
-    console.log("========== in generate payment ====================");
-    console.log(session.user);
+
     const body = {
       price: 100,
       paymentStatus: "Pending",
@@ -20,12 +19,8 @@ export async function generatePaymentInfo() {
       body
     );
 
-    console.log("============== in result =================");
-    console.log(response.data);
-
     return { ok: true, message: response.data };
   } catch (error) {
-    console.log(error);
     return { ok: false, message: "something went wrong" };
   }
 }

@@ -42,8 +42,6 @@ const { Option } = Select;
 const FilteredReportPage: React.FC = () => {
   const { data: session } = useSession();
 
-  // console.log("session: ", session);
-
   const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
     null
@@ -205,7 +203,6 @@ const FilteredReportPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("data: ", data);
       setSelectedReport(data);
 
       // Initialize filter states
@@ -242,8 +239,6 @@ const FilteredReportPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // console.log("selectedReport: ", selectedReport);
 
   const handleDiscreteItemChange = (fieldId: string, item: string) => {
     setSelectedItemsPerField((prev) => {
@@ -329,8 +324,6 @@ const FilteredReportPage: React.FC = () => {
   }, [selectedReport]);
 
   const applyFilters = () => {
-    console.log("selectedReprot in here: ", selectedReport);
-    console.log("selectedItemsperFiled: ", selectedItemsPerField);
     const filtersSelected = Object.entries(selectedItemsPerField).reduce(
       (acc, [fieldId, selectedFilter]) => {
         const field = selectedReport?.fields.find((f) => f._id === fieldId);
@@ -348,7 +341,6 @@ const FilteredReportPage: React.FC = () => {
       {} as { [fieldName: string]: string[] }
     );
 
-    console.log("filtersSelected: ", filtersSelected);
     if (Object.keys(filtersSelected).length > 0) {
       setSelectedFilters(filtersSelected);
       setShowChartTable(true);
