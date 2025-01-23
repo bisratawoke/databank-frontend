@@ -23,75 +23,75 @@ const MenuItems: MenuItem[] = [
   { name: "Home", link: "/" },
   {
     name: "About ESS",
-    submenu: [
-      { name: "About ESS", link: "/about" },
-      { name: "History", link: "/history" },
-      { name: "Organization Structure", link: "/organization-structure" },
-      { name: "Statistics Act", link: "/statistics-act" },
-      { name: "Proclamation", link: "/proclamation" },
-      { name: "Strategies", link: "/strategies" },
-      {
-        name: "Statistics For Results (SFR)",
-        submenu: [
-          { name: "SFR Audit Report", link: "/sfr-audit-report" },
-          { name: "SFR Activities", link: "/sfr-activities" },
-          {
-            name: "National Statistics Abstract (2003-15)",
-            link: "/statistics-abstract",
-          },
-          { name: "Links of Related Organization", link: "/related-links" },
-        ],
-      },
-      {
-        name: "More",
-        submenu: [
-          { name: "Branch Offices", link: "/branch-offices" },
-          { name: "Contact Us", link: "/contact-us" },
-          { name: "Vacancies & Internship", link: "/vacancies-internship" },
-          { name: "Bid", link: "/bid" },
-        ],
-      },
-    ],
+    // submenu: [
+    //   { name: "About ESS", link: "/about" },
+    //   { name: "History", link: "/history" },
+    //   { name: "Organization Structure", link: "/organization-structure" },
+    //   { name: "Statistics Act", link: "/statistics-act" },
+    //   { name: "Proclamation", link: "/proclamation" },
+    //   { name: "Strategies", link: "/strategies" },
+    //   {
+    //     name: "Statistics For Results (SFR)",
+    //     submenu: [
+    //       { name: "SFR Audit Report", link: "/sfr-audit-report" },
+    //       { name: "SFR Activities", link: "/sfr-activities" },
+    //       {
+    //         name: "National Statistics Abstract (2003-15)",
+    //         link: "/statistics-abstract",
+    //       },
+    //       { name: "Links of Related Organization", link: "/related-links" },
+    //     ],
+    //   },
+    //   {
+    //     name: "More",
+    //     submenu: [
+    //       { name: "Branch Offices", link: "/branch-offices" },
+    //       { name: "Contact Us", link: "/contact-us" },
+    //       { name: "Vacancies & Internship", link: "/vacancies-internship" },
+    //       { name: "Bid", link: "/bid" },
+    //     ],
+    //   },
+    // ],
   },
   { name: "Publication", link: "/publication" },
   {
     name: "Find Statistics",
-    submenu: [
-      {
-        name: "Surveys",
-        submenu: [
-          { name: "Agricultural", link: "/surveys/agricultural" },
-          { name: "Labour Force", link: "/surveys/labour-force" },
-          { name: "Livestock", link: "/surveys/livestock" },
-        ],
-      },
-      {
-        name: "Census",
-        submenu: [
-          { name: "Population & Housing", link: "/census/population-housing" },
-          { name: "Business", link: "/census/business" },
-          { name: "Household", link: "/census/household" },
-        ],
-      },
-      {
-        name: "Price",
-        submenu: [
-          { name: "Monthly Retail Price", link: "/price/monthly" },
-          { name: "Quarterly Price Index", link: "/price/quarterly" },
-          { name: "Annually Price Index", link: "/price/annually" },
-        ],
-      },
-    ],
+    // submenu: [
+    //   {
+    //     name: "Surveys",
+    //     submenu: [
+    //       { name: "Agricultural", link: "/surveys/agricultural" },
+    //       { name: "Labour Force", link: "/surveys/labour-force" },
+    //       { name: "Livestock", link: "/surveys/livestock" },
+    //     ],
+    //   },
+    //   {
+    //     name: "Census",
+    //     submenu: [
+    //       { name: "Population & Housing", link: "/census/population-housing" },
+    //       { name: "Business", link: "/census/business" },
+    //       { name: "Household", link: "/census/household" },
+    //     ],
+    //   },
+    //   {
+    //     name: "Price",
+    //     submenu: [
+    //       { name: "Monthly Retail Price", link: "/price/monthly" },
+    //       { name: "Quarterly Price Index", link: "/price/quarterly" },
+    //       { name: "Annually Price Index", link: "/price/annually" },
+    //     ],
+    //   },
+    // ],
   },
   { name: "Data Portal", link: "/data-portal" },
   {
     name: "Media",
-    submenu: [
-      { name: "News ESS", link: "/news" },
-      { name: "Events", link: "/events" },
-      { name: "Photo Gallery", link: "/photo-gallery" },
-      { name: "Video Gallery", link: "/video-gallery" },
-    ],
+    // submenu: [
+    //   { name: "News ESS", link: "/news" },
+    //   { name: "Events", link: "/events" },
+    //   { name: "Photo Gallery", link: "/photo-gallery" },
+    //   { name: "Video Gallery", link: "/video-gallery" },
+    // ],
   },
 ];
 
