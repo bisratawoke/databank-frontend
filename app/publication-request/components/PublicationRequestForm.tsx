@@ -5,13 +5,14 @@ import { Form, Input, Button, Select, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import createPublicationRequest from "../actions/createPublicationRequest";
 import { useRouter } from "next/navigation";
+
 const { Option } = Select;
 
 const ADMIN_UNITS = [
   { label: "National", value: "National" },
   { label: "Reginal", value: "Reginal" },
   { label: "Woreda", value: "Woreda" },
-  { label: "Zoneal", value: "Zoneal" },
+  { label: "Zonal", value: "Zoneal" },
   { label: "Kebele", value: "Kebele" },
 ];
 
@@ -27,6 +28,7 @@ interface Props {
 const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
   const [form] = Form.useForm();
   const router = useRouter();
+
   const handleSubmit = async (values: any) => {
     try {
       const formData = new FormData();
@@ -45,9 +47,11 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
       });
 
       // Append file if it exists
-      if (values.file) {
-        formData.append("file", values.file.originFileObj);
+      if (values.file && values.file[0]) {
+        formData.append("file", values.file[0].originFileObj);
       }
+
+      console.log(values);
 
       const response = await createPublicationRequest(formData);
 
@@ -181,8 +185,8 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
           <Form.Item
             label="File Upload"
             name="file"
-            valuePropName="file"
-            getValueFromEvent={(e: any) => e?.file?.originFileObj || null}
+            valuePropName="fileList"
+            getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
           >
             <Upload beforeUpload={() => false} maxCount={1}>
               <Button icon={<UploadOutlined />}>Upload File</Button>
