@@ -14,8 +14,10 @@ export default async function createPublicationRequest(formData: FormData) {
     body: formData,
   });
 
-  const body = await res.json();
+  console.log(res.status);
 
+  const body = await res.json();
+  console.log(body);
   return {
     body,
     status: res.status,

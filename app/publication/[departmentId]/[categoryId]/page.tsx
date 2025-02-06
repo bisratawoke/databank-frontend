@@ -14,5 +14,11 @@ export default async function Page({ params }: PageProps) {
       departmentId: params.departmentId,
       categoryId: params.categoryId,
     });
-  return <PublicationList publications={publications} />;
+
+  console.log("============ in fetch publication page ============");
+  console.log(publications);
+  let result = publications.filter(
+    (pub: any) => pub.publicationType != "INTERNAL"
+  );
+  return <PublicationList publications={result} />;
 }

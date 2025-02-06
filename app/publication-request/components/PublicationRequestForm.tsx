@@ -111,6 +111,22 @@ const PublicationRequestForm: React.FC<Props> = ({ categories }) => {
             />
           </Form.Item>
 
+          <Form.Item
+            label="Data Specification"
+            name="dataSpecification"
+            rules={[
+              {
+                required: true,
+                message: "Please enter a your data requiremnts!",
+              },
+            ]}
+          >
+            <Input.TextArea
+              placeholder="e.g., Price flutation of injera since 2015 -2024 in Amhara Region"
+              className="w-full"
+            />
+          </Form.Item>
+
           {/* Preferred Data Format */}
           <Form.Item
             label="Preferred Data Format"
