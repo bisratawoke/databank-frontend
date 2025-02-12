@@ -10,7 +10,7 @@ type BillType = {
   timestamp: number;
 };
 
-export async function payWithTelebirr(payload) {
+export async function payWithTelebirr(payload: any) {
   const { bill } = payload;
   const investment_amount = bill.amount.split(".")[0];
   const body = {
@@ -30,12 +30,8 @@ export async function payWithTelebirr(payload) {
       body
     );
 
-    console.log("============== in result =================");
-    console.log(response.data);
-
     return { ok: true, message: response.data };
   } catch (error) {
-    console.log(error);
     return { ok: false, message: "something went wrong" };
   }
 }
@@ -54,7 +50,6 @@ export async function UpdatedPublicationRequestPaymentStatus({
 
     return { ok: true, message: response.data };
   } catch (error) {
-    console.log(error);
     return { ok: false, message: "something went wrong" };
   }
 }
