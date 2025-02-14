@@ -15,7 +15,6 @@ export default async function page({
   } = await searchParams;
 
   if (trade_status == "PAY_SUCCESS") {
-    alert("success");
     if (author && publicationRequestId) {
       const payload = {
         paymentStatus: "Confirmed",
@@ -23,6 +22,8 @@ export default async function page({
         publciationRequest: publicationRequestId[1],
       };
 
+      console.log("========= in payment result page =========");
+      console.log(payload);
       const res = await UpdatedPublicationRequestPaymentStatus({
         payload: payload,
         publicationRequestId: publicationRequestId[1],
