@@ -83,8 +83,17 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
   // router.push(`/filter}`);
   // };
 
-  const navigateToFilterPage = () => {
-    router.push("/filter");
+  // const navigateToFilterPage = () => {
+  //   router.push("/filter");
+  // };
+  const navigateToFilterPage = (
+    departmentId: string,
+    categoryId: string,
+    subcategoryId: string
+  ) => {
+    router.push(
+      `/filter?departmentId=${departmentId}&categoryId=${categoryId}&subcategoryId=${subcategoryId}`
+    );
   };
 
   // Search and filter logic
@@ -359,7 +368,14 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
                       <div
                         key={subcategory._id}
                         className="bg-white border-t border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                        onClick={navigateToFilterPage}
+                        // onClick={navigateToFilterPage}
+                        onClick={() =>
+                          navigateToFilterPage(
+                            department._id,
+                            category._id,
+                            subcategory._id
+                          )
+                        }
                       >
                         <div className="flex justify-between items-center">
                           {/* Subcategory Name and Tag */}

@@ -35,12 +35,19 @@ import {
 } from "./types";
 import FieldFilterModal from "./_components/FieldFilterModal";
 import CustomDropdown from "./_components/CustomDropdown";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const { Panel } = Collapse;
 const { Option } = Select;
 
 const FilteredReportPage: React.FC = () => {
   const { data: session } = useSession();
+
+  const searchParams = useSearchParams();
+
+  const departmentId = searchParams.get("departmentId");
+  const categoryId = searchParams.get("categoryId");
+  const subcategoryId = searchParams.get("subcategoryId");
 
   // console.log("session: ", session);
 
@@ -73,6 +80,32 @@ const FilteredReportPage: React.FC = () => {
   const [searchTerms, setSearchTerms] = useState<{ [fieldId: string]: string }>(
     {}
   );
+
+  // Use these IDs to pre-populate the selections
+
+  useEffect(() => {
+    if (departments.length > 0 && departmentId) {
+      handleDepartmentSelect(departmentId);
+    }
+  }, [departmentId, departments]);
+
+  useEffect(() => {
+    if (categories.length > 0 && categoryId) {
+      handleCategorySelect(categoryId);
+    }
+  }, [categoryId, categories]);
+
+  useEffect(() => {
+    if (subCategories.length > 0 && subcategoryId) {
+      handleSubCategorySelect(subcategoryId);
+    }
+  }, [subcategoryId, subCategories]);
+
+  console.log("recieved querys: ", {
+    department: departmentId,
+    category: categoryId,
+    subCategory: subcategoryId,
+  });
 
   // New states for modal and advanced filtering
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(true);
@@ -109,23 +142,80 @@ const FilteredReportPage: React.FC = () => {
   }, []);
 
   // Handle Department Selection
+  // const handleDepartmentSelect = (departmentId: string) => {
+  //   if (!departmentId) {
+  //     // If null, reset everything
+  //     setSelectedDepartment(null);
+  //     setCategories([]);
+  //     setSelectedCategory(null);
+  //     setSelectedSubCategory(null);
+  //     setAvailableReports([]);
+  //     setSelectedReport(null);
+  //     return;
+  //   }
+
+  //   const selectedDept = departments.find((dept) => dept._id === departmentId);
+  //   if (selectedDept) {
+  //     setSelectedDepartment(departmentId);
+  //     setCategories(selectedDept.category);
+  //     // Reset subsequent selections
+  //     setSelectedCategory(null);
+  //     setSelectedSubCategory(null);
+  //     setAvailableReports([]);
+  //     setSelectedReport(null);
+  //   }
+  // };
+
+  // // Handle Category Selection
+  // const handleCategorySelect = (categoryId: string) => {
+  //   if (!categoryId) {
+  //     setSelectedCategory(null);
+  //     setSelectedSubCategory(null);
+  //     setAvailableReports([]);
+  //     setSelectedReport(null);
+  //     return;
+  //   }
+  //   const selectedCat = categories.find((cat) => cat._id === categoryId);
+  //   if (selectedCat) {
+  //     setSelectedCategory(categoryId);
+  //     setSubCategories(selectedCat.subcategory);
+  //     // Reset subsequent selections
+  //     setSelectedSubCategory(null);
+  //     setAvailableReports([]);
+  //     setSelectedReport(null);
+  //   }
+  // };
+
+  // // Handle SubCategory Selection
+  // const handleSubCategorySelect = (subCategoryId: string) => {
+  //   if (!subCategoryId) {
+  //     setSelectedSubCategory(null);
+  //     setAvailableReports([]);
+  //     setSelectedReport(null);
+  //     return;
+  //   }
+  //   const selectedSubCat = subCategories.find(
+  //     (subCat) => subCat._id === subCategoryId
+  //   );
+  //   if (selectedSubCat) {
+  //     setSelectedSubCategory(subCategoryId);
+  //     // Filter published reports for this subcategory
+  //     const reports = selectedSubCat.report.filter(
+  //       (report) => report.status === "published"
+  //     );
+  //     setAvailableReports(reports);
+  //     // Reset report selection
+  //     setSelectedReport(null);
+  //   }
+  // };
+
   const handleDepartmentSelect = (departmentId: string) => {
-    if (!departmentId) {
-      // If null, reset everything
-      setSelectedDepartment(null);
-      setCategories([]);
-      setSelectedCategory(null);
-      setSelectedSubCategory(null);
-      setAvailableReports([]);
-      setSelectedReport(null);
-      return;
-    }
+    if (!departmentId || selectedDepartment === departmentId) return;
 
     const selectedDept = departments.find((dept) => dept._id === departmentId);
     if (selectedDept) {
       setSelectedDepartment(departmentId);
       setCategories(selectedDept.category);
-      // Reset subsequent selections
       setSelectedCategory(null);
       setSelectedSubCategory(null);
       setAvailableReports([]);
@@ -133,49 +223,34 @@ const FilteredReportPage: React.FC = () => {
     }
   };
 
-  // Handle Category Selection
   const handleCategorySelect = (categoryId: string) => {
-    if (!categoryId) {
-      setSelectedCategory(null);
-      setSelectedSubCategory(null);
-      setAvailableReports([]);
-      setSelectedReport(null);
-      return;
-    }
+    if (!categoryId || selectedCategory === categoryId) return;
+
     const selectedCat = categories.find((cat) => cat._id === categoryId);
     if (selectedCat) {
       setSelectedCategory(categoryId);
       setSubCategories(selectedCat.subcategory);
-      // Reset subsequent selections
       setSelectedSubCategory(null);
       setAvailableReports([]);
       setSelectedReport(null);
     }
   };
 
-  // Handle SubCategory Selection
   const handleSubCategorySelect = (subCategoryId: string) => {
-    if (!subCategoryId) {
-      setSelectedSubCategory(null);
-      setAvailableReports([]);
-      setSelectedReport(null);
-      return;
-    }
+    if (!subCategoryId || selectedSubCategory === subCategoryId) return;
+
     const selectedSubCat = subCategories.find(
       (subCat) => subCat._id === subCategoryId
     );
     if (selectedSubCat) {
       setSelectedSubCategory(subCategoryId);
-      // Filter published reports for this subcategory
       const reports = selectedSubCat.report.filter(
         (report) => report.status === "published"
       );
       setAvailableReports(reports);
-      // Reset report selection
       setSelectedReport(null);
     }
   };
-
   // Handle Report Selection
   const handleReportSelect = async (reportId: string) => {
     if (!reportId) {
@@ -404,6 +479,48 @@ const FilteredReportPage: React.FC = () => {
             {/* Enhanced Hierarchical Selection Dropdowns */}
             <div className="space-y-4">
               {/* Enhanced Hierarchical Dropdowns */}
+              {/* <CustomDropdown
+                items={departments}
+                selectedItems={selectedDepartment ? [selectedDepartment] : []}
+                onSelect={(selectedIds) =>
+                  handleDepartmentSelect(selectedIds[0] || null)
+                }
+                onClear={() => {
+                  setSelectedDepartment(null);
+                }}
+                placeholder="Select Department"
+                mode="single"
+              />
+
+              <CustomDropdown
+                items={categories}
+                selectedItems={selectedCategory ? [selectedCategory] : []}
+                onSelect={(selectedIds) =>
+                  handleCategorySelect(selectedIds[0] || null)
+                }
+                placeholder="Select Category"
+                disabled={!selectedDepartment}
+                mode="single"
+                onClear={() => {
+                  setSelectedCategory(null);
+                }}
+              />
+              {/* Subcategory Dropdown *
+
+              <CustomDropdown
+                items={subCategories}
+                selectedItems={selectedSubCategory ? [selectedSubCategory] : []}
+                onSelect={(selectedIds) =>
+                  handleSubCategorySelect(selectedIds[0] || null)
+                }
+                placeholder="Select Subcategory"
+                disabled={!selectedDepartment}
+                mode="single"
+                onClear={() => {
+                  setSelectedSubCategory(null);
+                }}
+              /> */}
+
               <CustomDropdown
                 items={departments}
                 selectedItems={selectedDepartment ? [selectedDepartment] : []}
@@ -430,7 +547,6 @@ const FilteredReportPage: React.FC = () => {
                   setSelectedCategory(null);
                 }}
               />
-              {/* Subcategory Dropdown */}
 
               <CustomDropdown
                 items={subCategories}
