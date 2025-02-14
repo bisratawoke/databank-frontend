@@ -19,8 +19,8 @@ export async function payWithTelebirr(payload: any) {
     total_amount: investment_amount,
     trans_currency: "ETB",
     merchant_order_id: bill.orderId,
-    notify_url: bill.redirect_url,
-    redirect_url: bill.redirect_url,
+    notify_url: `${process.env.PAYMENT_REDIRECT_URL}${bill.redirect_url}`,
+    redirect_url: `${process.env.PAYMENT_REDIRECT_URL}${bill.redirect_url}`,
     timestamp: bill.timestamp,
   };
 

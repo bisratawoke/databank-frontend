@@ -32,7 +32,8 @@ export default function Pay({
         amount: `${message.price}`,
         orderId: `${message._id}`,
         timestamp: new Date().getTime(),
-        redirect_url: `http://localhost:3000/paymenttest/result?link=http://localhost:3000/user/profile/dashboard&author=${message.author}&type=Link&publicationRequestId=${message._id}&`,
+        // in here baby
+        redirect_url: `/paymenttest/result?link=http://localhost:3000/user/profile/dashboard&author=${message.author}&type=Link&publicationRequestId=${message._id}&`,
       },
     };
     const result = await payWithTelebirr(payload);
