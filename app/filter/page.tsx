@@ -42,6 +42,7 @@ const { Option } = Select;
 
 const FilteredReportPage: React.FC = () => {
   const { data: session } = useSession();
+  const router = useRouter();
 
   const searchParams = useSearchParams();
 
@@ -80,6 +81,12 @@ const FilteredReportPage: React.FC = () => {
   const [searchTerms, setSearchTerms] = useState<{ [fieldId: string]: string }>(
     {}
   );
+
+  useEffect(() => {
+    if (session === null) {
+      router.push("/auth/signin");
+    }
+  }, [session, router]);
 
   // Use these IDs to pre-populate the selections
 

@@ -41,7 +41,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
       key: "logout",
       label: (
         <span
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={() => signOut({ callbackUrl: "/auth/signin" })}
           className="flex items-center space-x-2"
         >
           <svg
