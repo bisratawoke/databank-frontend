@@ -989,8 +989,15 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
 
         {view === "chart" && <div className="mt-10">{renderChart()}</div>}
         {view === "map" && (
+          // <div className="mt-10">
+          //   <MapComponent onRegionClick={handleRegionClick} />
+          // </div>
+
           <div className="mt-10">
-            <MapComponent onRegionClick={handleRegionClick} />
+            <MapComponent
+              data={filteredData} // Pass the fetched data here
+              onRegionClick={handleRegionClick}
+            />
           </div>
         )}
       </div>
