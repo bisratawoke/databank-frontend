@@ -269,7 +269,7 @@ const DepartmentsList: React.FC<DepartmentsListProps> = ({ departments }) => {
           onClick={() => setFilterVisible(true)}
           className="shadow-lg"
         >
-          Filters
+          Filtersw
         </Button>
       </div>
 
