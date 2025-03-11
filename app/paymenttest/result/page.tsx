@@ -28,6 +28,7 @@ export default async function page({
         payload: payload,
         publicationRequestId: publicationRequestId[1],
       });
+      console.log(res);
     }
 
     return (
