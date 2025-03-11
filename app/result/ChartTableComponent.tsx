@@ -555,12 +555,12 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
             >
               Chart
             </Button>
-            <Button
+            {/* <Button
               type={view === "map" ? "primary" : "default"}
               onClick={() => setView("map")}
             >
               Map
-            </Button>
+            </Button> */}
           </div>
           <div className="flex gap-2">
             <Input.Search
@@ -623,11 +623,18 @@ const ChartTableComponent: React.FC<ChartTableComponentProps> = ({
         )}
 
         {view === "chart" && <div className="mt-10">{renderChart()}</div>}
-        {view === "map" && (
+        {/* {view === "map" && (
+          // <div className="mt-10">
+          //   <MapComponent onRegionClick={handleRegionClick} />
+          // </div>
+
           <div className="mt-10">
-            <MapComponent onRegionClick={handleRegionClick} />
+            <MapComponent
+              data={filteredData} // Pass the fetched data here
+              onRegionClick={handleRegionClick}
+            />
           </div>
-        )}
+        )} */}
       </div>
     </>
   );

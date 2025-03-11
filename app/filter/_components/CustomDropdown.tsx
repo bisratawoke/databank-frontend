@@ -85,7 +85,7 @@ const CustomCollapse = ({
         }
         // if placeholder apply not stile if seleectedItem add blue background
         style={{
-          backgroundColor: selectedItems.length > 0 ? "#ADD8E6" : "",
+          backgroundColor: selectedItems.length > 0 ? "#1890ff" : "",
         }}
         key="1"
       >
