@@ -10,6 +10,9 @@ type BillType = {
   timestamp: number;
 };
 
+export async function getRedirectUrl() {
+  return process.env.PAYMENT_REDIRECT_URL;
+}
 export async function payWithTelebirr(payload: any) {
   const { bill } = payload;
   const investment_amount = bill.amount.split(".")[0];

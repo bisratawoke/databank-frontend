@@ -14,15 +14,23 @@ export default async function page({
     publicationRequestId,
   } = await searchParams;
 
+  console.log("========= in payment result page =========");
+  console.log({
+    trade_status,
+    link,
+
+    author,
+    publicationRequestId,
+  });
   if (trade_status == "PAY_SUCCESS") {
     if (author && publicationRequestId) {
+      console.log("=========== in payment innner section ===========");
       const payload = {
         paymentStatus: "Confirmed",
         author: author[0],
         publciationRequest: publicationRequestId[1],
       };
 
-      console.log("========= in payment result page =========");
       console.log(payload);
       const res = await UpdatedPublicationRequestPaymentStatus({
         payload: payload,
