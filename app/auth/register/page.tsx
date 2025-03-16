@@ -10,7 +10,7 @@ import Image from "next/image";
 
 interface RegisterFormValues {
   fullName: string;
-  companyName: string;
+  companyName?: string;
   userType: UserType;
   email: string;
   phoneNumber: string;
@@ -41,7 +41,6 @@ export default function RegisterPage() {
         error instanceof Error
           ? error.message
           : "An unexpected error occurred during registration.";
-
       message.error(errorMessage);
       console.error("Registration error:", error);
     } finally {
@@ -80,7 +79,7 @@ export default function RegisterPage() {
 
       {/* Right Half - Registration Form (2/3 width) */}
       <div className="w-1/2 md:w-2/3 flex items-center justify-center mt-4 p-8 bg-gray-50">
-        <div className=" bg-white border border-gray-200 p-8 rounded-lg w-full md:w-1/2">
+        <div className="bg-white border border-gray-200 p-8 rounded-lg w-full md:w-1/2">
           <Form
             form={form}
             name="register"
@@ -121,14 +120,7 @@ export default function RegisterPage() {
               <Input placeholder="Enter your full name" className="h-12" />
             </Form.Item>
 
-            <Form.Item
-              label="Company Name"
-              name="companyName"
-              rules={[{ whitespace: true }]}
-            >
-              <Input placeholder="Enter your company name" className="h-12" />
-            </Form.Item>
-
+            {/* User Type Field */}
             <Form.Item
               label="User Type"
               name="userType"
@@ -145,6 +137,30 @@ export default function RegisterPage() {
                   </Select.Option>
                 ))}
               </Select>
+            </Form.Item>
+
+            {/* Conditionally show Company Name if userType is selected and is not INDIVIDUAL */}
+            <Form.Item
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues.userType !== currentValues.userType
+              }
+              noStyle
+            >
+              {({ getFieldValue }) => {
+                const userType = getFieldValue("userType");
+                return userType && userType !== UserType.INDIVIDUAL ? (
+                  <Form.Item
+                    label="Company Name"
+                    name="companyName"
+                    rules={[{ whitespace: true }]}
+                  >
+                    <Input
+                      placeholder="Enter your company name"
+                      className="h-12"
+                    />
+                  </Form.Item>
+                ) : null;
+              }}
             </Form.Item>
 
             <Form.Item
