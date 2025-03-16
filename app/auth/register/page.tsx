@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Button, message, Select } from "antd";
+import { Form, Input, Button, message, Select, Upload } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import registerUser from "../actions/registerUser";
 import { UserType } from "../types/UserTypes";
 import Image from "next/image";
+import { BACKEND_URL } from "@/constants/constants";
 
 interface RegisterFormValues {
   fullName: string;
@@ -16,6 +18,8 @@ interface RegisterFormValues {
   phoneNumber: string;
   mobileNumber: string;
   password: string;
+  country?: string;
+  authorizationLetter?: any;
 }
 
 export default function RegisterPage() {
@@ -25,28 +29,66 @@ export default function RegisterPage() {
 
   const onFinish = async (values: RegisterFormValues) => {
     setIsLoading(true);
-
     try {
-      const res = await registerUser(values);
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === "authorizationLetter" && value) {
+          formData.append("authorizationLetter", value[0].originFileObj);
+        } else {
+          formData.append(key, value as string);
+        }
+      });
+
+      const res = await fetch(`${BACKEND_URL}/portal-users/register`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
       if (res.status === 201) {
         message.success("Successfully registered!");
         router.push("/api/auth/signin");
       } else {
-        const errorMsg =
-          res?.message || "Registration failed. Please try again.";
-        message.error(errorMsg);
+        message.error(
+          result?.message || "Registration failed. Please try again."
+        );
       }
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred during registration.";
-      message.error(errorMessage);
+      message.error("An unexpected error occurred during registration.");
       console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // const onFinish = async (values: RegisterFormValues) => {
+  //   setIsLoading(true);
+  //   try {
+  //     // The file upload is handled by the form.
+  //     // Ensure that if a file is provided, you extract the file object to send to your API.
+  //     // For example, you might extract it like this:
+  //     // const file = values.authorizationLetter && values.authorizationLetter[0];
+  //     console.log(values);
+  //     const res = await registerUser(values);
+  //     if (res.status === 201) {
+  //       message.success("Successfully registered!");
+  //       router.push("/api/auth/signin");
+  //     } else {
+  //       const errorMsg =
+  //         res?.message || "Registration failed. Please try again.";
+  //       message.error(errorMsg);
+  //     }
+  //   } catch (error: unknown) {
+  //     const errorMessage =
+  //       error instanceof Error
+  //         ? error.message
+  //         : "An unexpected error occurred during registration.";
+  //     message.error(errorMessage);
+  //     console.error("Registration error:", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const Description = () => (
     <div className="flex flex-col items-center justify-center h-full px-10 gap-8">
@@ -139,7 +181,7 @@ export default function RegisterPage() {
               </Select>
             </Form.Item>
 
-            {/* Conditionally show Company Name if userType is selected and is not INDIVIDUAL */}
+            {/* Conditionally show Company Name, Country and Authorization Letter */}
             <Form.Item
               shouldUpdate={(prevValues, currentValues) =>
                 prevValues.userType !== currentValues.userType
@@ -149,16 +191,68 @@ export default function RegisterPage() {
               {({ getFieldValue }) => {
                 const userType = getFieldValue("userType");
                 return userType && userType !== UserType.INDIVIDUAL ? (
-                  <Form.Item
-                    label="Company Name"
-                    name="companyName"
-                    rules={[{ whitespace: true }]}
-                  >
-                    <Input
-                      placeholder="Enter your company name"
-                      className="h-12"
-                    />
-                  </Form.Item>
+                  <>
+                    <Form.Item
+                      label="Company Name"
+                      name="companyName"
+                      rules={[{ whitespace: true }]}
+                    >
+                      <Input
+                        placeholder="Enter your company name"
+                        className="h-12"
+                      />
+                    </Form.Item>
+                    {userType === UserType.FOREIGN_COMPANY && (
+                      <Form.Item
+                        label="Country"
+                        name="country"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your country",
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter your country"
+                          className="h-12"
+                        />
+                      </Form.Item>
+                    )}
+                    <Form.Item
+                      name="authorizationLetter"
+                      label="Authorization Letter"
+                      valuePropName="fileList"
+                      getValueFromEvent={(e) => {
+                        if (Array.isArray(e)) {
+                          return e;
+                        }
+                        return e?.fileList;
+                      }}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please upload your authorization letter.",
+                        },
+                      ]}
+                    >
+                      <Upload.Dragger
+                        name="authorizationLetter"
+                        beforeUpload={() => false} // Prevent auto upload
+                        accept=".pdf,.doc,.docx"
+                      >
+                        <p className="ant-upload-drag-icon">
+                          <InboxOutlined />
+                        </p>
+                        <p className="ant-upload-text">
+                          Click or drag file to this area to upload
+                        </p>
+                        <p className="ant-upload-hint">
+                          Support for PDF, DOC, DOCX files only, max 5MB.
+                        </p>
+                      </Upload.Dragger>
+                    </Form.Item>
+                  </>
                 ) : null;
               }}
             </Form.Item>
