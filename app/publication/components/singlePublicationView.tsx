@@ -22,7 +22,10 @@ export default function SinglePublicationView({
     price,
     coverImageLink,
   } = publication;
-
+  useEffect(() => {
+    console.log("======== in single publication view =============");
+    console.log(coverImageLink);
+  }, []);
   return (
     <div className="">
       <SinglePublicationTitleContainer
@@ -37,7 +40,7 @@ export default function SinglePublicationView({
             <div className="mt-6 mb-4">
               <div className="">
                 {coverImageLink ? (
-                  <Image
+                  <img
                     src={`http://${coverImageLink}`}
                     alt="something"
                     width={238}

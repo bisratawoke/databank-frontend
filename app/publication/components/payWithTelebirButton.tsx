@@ -26,17 +26,9 @@ export default function PayWithTelebir({
 
     console.log("============= in start payment ===========");
     console.log(uuid.split("-").join(""));
-    // console.log(message);
+
     const realId = uuid.split("-").join("");
     const payload = {
-      // bill: {
-      //   referenceNumber: `jack`,
-      //   title: title,
-      //   amount: `${price}`,
-      //   orderId: "jack",
-      //   timestamp: new Date().getTime(),
-      //   redirect_url: `http://localhost:3000/paymenttest/resut?link=${link}&type=1`,
-      // },
       bill: {
         referenceNumber: `${realId}`,
         title: title,
