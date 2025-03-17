@@ -24,6 +24,7 @@
     "react-simple-maps": "^3.0.0",
     "recharts": "^2.12.7",
     "sitemap": "^8.0.0",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

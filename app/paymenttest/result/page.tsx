@@ -22,6 +22,17 @@ export default async function page({
     author,
     publicationRequestId,
   });
+  console.log(type[1]);
+
+  if (type[1] == "1") {
+    if (trade_status == "PAY_SUCCESS") {
+      return (
+        <div className="flex items-center justify-center pt-10">
+          <PaymentSucessfullNotification link={link} type={"Download"} />
+        </div>
+      );
+    }
+  }
   if (trade_status == "PAY_SUCCESS") {
     if (author && publicationRequestId) {
       console.log("=========== in payment innner section ===========");

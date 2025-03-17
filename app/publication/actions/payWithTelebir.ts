@@ -6,9 +6,8 @@ export type BillType = {
   amount: string;
   orderId: string;
   timestamp: number;
+  redirect_url: string;
 };
-
-const redirect_url = "http://localhost:3000/paymenttest/inner";
 
 export async function payWithTelebirr(payload: { bill: BillType }) {
   const { bill } = payload;
@@ -19,8 +18,8 @@ export async function payWithTelebirr(payload: { bill: BillType }) {
     total_amount: investment_amount,
     trans_currency: "ETB",
     merchant_order_id: bill.orderId,
-    notify_url: redirect_url,
-    redirect_url: redirect_url,
+    notify_url: bill.redirect_url,
+    redirect_url: bill.redirect_url,
     timestamp: bill.timestamp,
   };
 
