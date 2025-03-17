@@ -56,3 +56,81 @@ export async function UpdatedPublicationRequestPaymentStatus({
     return { ok: false, message: "something went wrong" };
   }
 }
+
+// export default async function sendEmail({ link }: { link: string }) {
+//   try {
+//     const session: any = await getSession();
+//     const recipient = session.user.email;
+//     const subject = "";
+//     const body = `${link}`;
+//     console.log("============== in send email ===============");
+//     console.log(session);
+
+//     const res = await fetch(`${BACKEND_URL}/notifire/email`, {
+//       headers: {
+//         "content-type": "application/json",
+//         authorization: `Bearer ${session.user.accessToken}`,
+//       },
+//       method: "POST",
+//       body: JSON.stringify({
+//         subject,
+//         body,
+//         recipient,
+//       }),
+//     });
+//     const result = await res.json();
+//     console.log(result);
+//     return {
+//       status: res.status,
+//       result,
+//     };
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
+
+export default async function sendEmail({ link }: { link: string }) {
+  try {
+    const session: any = await getSession();
+    const recipient = session.user.email;
+    const subject =
+      "Your Purchased Publication from Ethiopian Statistical Service";
+    const body = `Dear Valued Customer,
+
+Thank you for your purchase from the Ethiopian Statistical Service.  
+
+You can access your publication using the link below:  
+
+${link}  
+
+If you have any questions or need further assistance, please do not hesitate to contact us.  
+
+Best regards,  
+Ethiopian Statistical Service`;
+
+    console.log("============== in send email ===============");
+    console.log(session);
+
+    const res = await fetch(`${BACKEND_URL}/notifire/email`, {
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${session.user.accessToken}`,
+      },
+      method: "POST",
+      body: JSON.stringify({
+        subject,
+        body,
+        recipient,
+      }),
+    });
+
+    const result = await res.json();
+    console.log(result);
+    return {
+      status: res.status,
+      result,
+    };
+  } catch (err) {
+    console.log(err);
+  }
+}

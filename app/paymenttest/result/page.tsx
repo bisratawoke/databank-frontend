@@ -1,4 +1,4 @@
-import { UpdatedPublicationRequestPaymentStatus } from "../action";
+import sendEmail, { UpdatedPublicationRequestPaymentStatus } from "../action";
 import PaymentSucessfullNotification from "./components/paymentSucessfullNotification";
 
 export default async function page({
@@ -26,6 +26,7 @@ export default async function page({
 
   if (type[1] == "1") {
     if (trade_status == "PAY_SUCCESS") {
+      await sendEmail({ link });
       return (
         <div className="flex items-center justify-center pt-10">
           <PaymentSucessfullNotification link={link} type={"Download"} />
