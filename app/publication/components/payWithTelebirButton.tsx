@@ -2,6 +2,7 @@ import { Button } from "antd";
 import { payWithTelebirr } from "../actions/payWithTelebir";
 import { generatePaymentInfo } from "../actions/generatePaymentInfo";
 import genUuid from "../actions/generateUuid";
+import { getRedirectUrl } from "@/app/paymenttest/action";
 export default function PayWithTelebir({
   price,
   title,
@@ -21,6 +22,7 @@ export default function PayWithTelebir({
   const startPayment = async () => {
     // const { message } = await generatePaymentInfo();
     const uuid = await genUuid();
+    const url = await getRedirectUrl();
 
     console.log("============= in start payment ===========");
     console.log(uuid.split("-").join(""));
@@ -41,7 +43,7 @@ export default function PayWithTelebir({
         amount: `${price}`,
         orderId: `${realId}`,
         timestamp: new Date().getTime(),
-        redirect_url: `http://localhost:3000/paymenttest/result?link=${link}&type=1`,
+        redirect_url: `${url}/paymenttest/result?link=${link}&type=1`,
       },
     };
     const result = await payWithTelebirr(payload);
