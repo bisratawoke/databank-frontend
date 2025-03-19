@@ -14,10 +14,21 @@ export default async function createPublicationRequest(formData: FormData) {
     body: formData,
   });
 
-  console.log(res.status);
-
   const body = await res.json();
-  console.log(body);
+
+  await fetch(
+    `${BACKEND_URL}/publication-request/dissmination-assign-department/${body._id}`,
+    {
+      headers: {
+        authorization: `Bearer ${session.user.accessToken}`,
+      },
+      method: "POST",
+      body: JSON.stringify({
+        _id: body._id,
+      }),
+    }
+  );
+
   return {
     body,
     status: res.status,
